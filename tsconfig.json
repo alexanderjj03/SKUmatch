@@ -1,0 +1,23 @@
+{
+	"$schema": "https://json.schemastore.org/tsconfig",
+	"display": "Node 18",
+
+	"_version": "18.2.0",
+
+	"extends": "@tsconfig/node18/tsconfig.json",
+
+	"compilerOptions": {
+		"lib": ["es2022"],
+		"module": "node16",
+		"target": "es2022",
+		"noImplicitAny": true,
+		"outDir": "dist",
+		"strict": true,
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"forceConsistentCasingInFileNames": true,
+		"moduleResolution": "node16"
+	},
+
+	"include": ["src/**/*", "test/**/*spec.ts"]
+}

@@ -1,5 +1,16 @@
 {
   "dependencies": {
-    "chai": "^5.1.0"
+    "@types/chai": "^4.3.16",
+    "chai": "^5.1.0",
+    "fs": "^0.0.1-security",
+    "fs-extra": "^11.2.0",
+    "jszip": "^3.10.1",
+    "node": "^20.13.0",
+    "nodeJS": "^1.0.0"
+  },
+  "devDependencies": {
+    "@types/chai-as-promised": "^7.1.8",
+    "@types/fs-extra": "^11.0.4",
+    "i": "^0.3.7"
   }
 }
