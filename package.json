@@ -10,7 +10,8 @@
     "mocha": "^10.4.0",
     "node": "^20.13.0",
     "nodeJS": "^1.0.0",
-    "super": "^0.2.3"
+    "super": "^0.2.3",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@tsconfig/node18": "1.0.1",

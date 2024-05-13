@@ -99,5 +99,19 @@ describe("ProductFilter", function () {
         });
     });
 
+    describe("Add data", function () {
+        let filter: ProductFilter;
+
+        before( function () {
+            filter = new ProductFilter();
+        });
+
+        it("live testing", async function() {
+            const result = await filter.loadPersistNewData();
+            console.log(result);
+        });
+
+    });
+
     // More tests to come
 });
