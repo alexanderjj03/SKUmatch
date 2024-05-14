@@ -17,6 +17,8 @@ export class Brand {
         this.baseModelList.push(model);
     }
 
+    // LATER: Implement alternative addProduct method which accepts a Product object as input.
+
     // Add a new product, knowing only that it belongs to this brand.
     public addProduct(colCode: string, subColCode: string, baseModelCode: string, baseModelSKU: string,
                       uuidCode: string, attributes: AttributePairs) {

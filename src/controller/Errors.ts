@@ -12,6 +12,13 @@ export class DataAddError extends Error {
     }
 }
 
+export class DataPersistError extends Error {
+    constructor(message?: string) {
+        super(message);
+        Error.captureStackTrace(this, DataPersistError);
+    }
+}
+
 export class ResultTooLargeError extends Error {
     constructor(message?: string) {
         super(message);

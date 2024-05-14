@@ -99,16 +99,17 @@ describe("ProductFilter", function () {
         });
     });
 
-    describe("Add data", function () {
+    describe("Add/Persist data", function () {
         let filter: ProductFilter;
 
         before( function () {
             filter = new ProductFilter();
         });
 
-        it("live testing", async function() {
-            const result = await filter.loadPersistNewData();
-            console.log(result);
+        it("Add SKU match.xlsx to the system, ensure data are properly extracted",
+            async function() {
+            const result = await filter.loadSaveAllData();
+            const loadedData = filter.getLoadedData();
         });
 
     });

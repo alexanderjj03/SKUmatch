@@ -1,7 +1,7 @@
 import JSZip from "jszip";
 import * as fs from "fs-extra";
 import {Brand} from "./dataTypes/Brand";
-import {persistDir} from "./CacheDataset";
+import {loadJsonPersistFile, persistData, persistDir} from "./CacheDataset";
 import {externalDir, loadExcelFile} from "./loadExcelData";
 
 // Contains all the central functions to filter a list of products via user-provided JSON queries.
@@ -32,17 +32,31 @@ export default class ProductFilter {
         return Promise.resolve();
     }
 
-    // Load data from JSON filed in persistedData.
-    public async loadCachedData(): Promise<void> {
+    // Code to load data from JSON persistence files in persistedData. Update this.loadedFiles and this.cachedFiles.
+    // These should have the same contents on return. Return names of all loaded persistence files.
+    public async loadCachedData(): Promise<string[]> {
+        let ret: string[] = [];
+
         if (!fs.existsSync(persistDir)) {
             fs.mkdirSync(persistDir);
-            return Promise.resolve();
+            return Promise.resolve([]);
         }
 
-        // Code to load data from persistence files. Update this.loadedFiles and this.cachedFiles.
-        // Should have the same contents on return.
+        let files = await fs.readdir(persistDir);
+        for (const file of files) {
+            let fileNameParts = file.split(".");
 
-        return Promise.resolve();
+            if (fileNameParts[1] === "json") {
+                this.cachedFiles.push(fileNameParts[0]);
+                const result = await loadJsonPersistFile(file);
+                this.loadedFiles.push(fileNameParts[0]);
+
+                this.loadedData = result; // TEMPORARY. Next: implement function to merge result with this.loadedData
+                ret.push(fileNameParts[0]);
+            }
+        }
+
+        return Promise.resolve(ret);
     }
 
     // Load and persist data from files in externalData whose names don't appear in cachedFiles.
@@ -66,21 +80,15 @@ export default class ProductFilter {
                 const result = await loadExcelFile(file);
                 this.loadedFiles.push(fileNameParts[0]);
 
-                await this.persistData(fileNameParts[0], result);
+                this.loadedData = result; // TEMPORARY. Next: implement function to merge result with this.loadedData
+
+                await persistData(fileNameParts[0], result);
                 this.cachedFiles.push(fileNameParts[0]);
                 ret.push(fileNameParts[0]);
             }
         }
 
         return Promise.resolve(ret);
-    }
-
-    // Save new data to the disk, given the file name it originated from. Called from loadNewData.
-    public async persistData(name: string, data: {[key: string]: Brand}): Promise<void> {
-        if (this.dataIsLoaded) {
-            return Promise.resolve();
-        }
-        return Promise.resolve();
     }
 
     // Executes a user-provided query to filter through this.loadedData and return all matching product UUID's
@@ -94,13 +102,18 @@ export default class ProductFilter {
     }
 
     // Remove any data persistence file (by name) from the persistedData directory.
+    // Does NOT remove the associated data from this.loadedData.
     public async removeData(fileName: string): Promise<void> {
         if (!fs.existsSync(persistDir)) {
             fs.mkdirSync(persistDir);
             return Promise.resolve();
         }
 
-
+        await fs.remove(persistDir + "/" + fileName + ".json");
         return Promise.resolve();
+    }
+
+    public getLoadedData() {
+        return this.loadedData;
     }
 }
