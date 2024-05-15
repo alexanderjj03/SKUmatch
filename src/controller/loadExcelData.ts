@@ -36,16 +36,13 @@ export function JsontoBrands(data: any[]): {[key: string]: Brand} {
             }
 
             let product: Product = extractProduct(brandCode, obj);
-            // see LATER in Brand.ts
-            ret[brandCode].addProduct(product.getColCode(), product.getSubColCode(),
-                product.getBaseModelCode(), product.getBaseModelSKU(), product.getUuidCode(),
-                product.getAttributes());
+            ret[brandCode].addProductObj(product);
         }
     }
     return ret;
 }
 
-// Extract a product's attributes and information, given its corresponding JSON object. START HERE
+// Extract a product's attributes and information, given its corresponding JSON object.
 export function extractProduct(brandCode: string, data: any): Product {
     let colCode = String(data["Collection Code"]).trim();
     let subColCode = "";

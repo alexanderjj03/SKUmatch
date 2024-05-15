@@ -1,5 +1,6 @@
 import {BaseModel} from "./BaseModel";
 import {AttributePairs} from "./Attribute";
+import {Product} from "./Product";
 
 // Represents a jeweler brand, and stores all base models/products associated with it. Keeps track of all possible
 // attribute values as more products are added.
@@ -17,9 +18,25 @@ export class Brand {
         this.baseModelList.push(model);
     }
 
-    // LATER: Implement alternative addProduct method which accepts a Product object as input.
+    // Alternative to addProduct (below), accepting a Product object.
+    public addProductObj(product: Product) {
+        const baseModelIndex = this.baseModelList.map(value =>
+            value.getBaseModelSKU()).indexOf(product.getBaseModelSKU());
+        // index of new product's base model in baseModelList
 
-    // Add a new product, knowing only that it belongs to this brand.
+        // If the new product's base model isn't present, create a new one & add the product to it.
+        if (this.baseModelList.length === 0 || baseModelIndex === -1) {
+            const newBaseModel = new BaseModel(this.brandCode, product.getColCode(),
+                product.getSubColCode(), product.getBaseModelCode(), product.getBaseModelSKU());
+            newBaseModel.addProduct(product.getUuidCode(), product.getAttributes());
+            this.addBaseModel(newBaseModel);
+        } else {
+            this.baseModelList[baseModelIndex].addProduct(product.getUuidCode(), product.getAttributes());
+        }
+    }
+
+    // Add a new product, knowing only that it belongs to this brand. Provide the remaining data manually
+    // (mainly used for testing)
     public addProduct(colCode: string, subColCode: string, baseModelCode: string, baseModelSKU: string,
                       uuidCode: string, attributes: AttributePairs) {
 

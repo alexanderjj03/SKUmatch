@@ -9,6 +9,7 @@ import {AttributePairs} from "./dataTypes/Attribute";
 
 export const persistDir = "./persistedData";
 
+// Load a Brand dictionary from a JSON persistence file.
 export async function loadJsonPersistFile(name: string): Promise<{[key: string]: Brand}> {
     let ret: {[key: string]: Brand} = {};
     let content = fs.readFileSync(persistDir + "/" + name, "utf8");

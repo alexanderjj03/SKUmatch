@@ -106,13 +106,78 @@ describe("ProductFilter", function () {
             filter = new ProductFilter();
         });
 
-        it("Add SKU match.xlsx to the system, ensure data are properly extracted",
+
+        it("Add SKU match.xlsx to the system, ensure data are properly extracted from persistence file",
             async function() {
+
             const result = await filter.loadSaveAllData();
+            await new Promise(f => setTimeout(f, 100));
+            // sometimes an error appears if filter is reinitialized immediately after a file is added to the system.
+
+            filter = new ProductFilter();
+            const result2 = await filter.loadCachedData();
+            // Ensure that SKU match is persisted and reloaded from the persistence file
+
             const loadedData = filter.getLoadedData();
+            expect(Object.keys(loadedData)).to.have.deep.members(
+                ["CAPOLAVORO", "CARTIER", "POMELLATO", "SCHAFFRATH", "SCHMUCKWERK"]);
+
+            expect(loadedData["CAPOLAVORO"].getModelList().length).to.equal(1);
+            expect(loadedData["CARTIER"].getModelList().length).to.equal(1);
+            expect(loadedData["POMELLATO"].getModelList().length).to.equal(1);
+            expect(loadedData["SCHAFFRATH"].getModelList().length).to.equal(1);
+            expect(loadedData["SCHMUCKWERK"].getModelList().length).to.equal(4);
+
+            expect(loadedData["CAPOLAVORO"].getModelList()[0].getAttributeValues()).to.deep.equal({
+                'MATERIAL': [ 'GOLD(R)', 'GOLD(W)' ],
+                'TYPE OF CS': [ 'AMETHYST', 'MORGANITE', 'PRASIOLITE', 'TOPAZ' ],
+                'COLOR OF CS': [ 'LILAC', 'ROSA', 'GREEN', 'BLUE', 'SKY BLUE' ],
+                'SIZE': [ 16, 17, 18 ]});
+            expect(loadedData["CAPOLAVORO"].getModelList()[0].getBaseModelSKU()).to.deep.equal("AB9MOG00373");
+            expect(loadedData["CAPOLAVORO"].getModelList()[0].getProductList().length).to.equal(15);
+
+            expect(loadedData["CARTIER"].getModelList()[0].getAttributeValues()).to.deep.equal({
+                'MATERIAL': [ 'GOLD(R)', 'GOLD(Y)', 'GOLD(W)', 'PLATIN'],
+                'SIZE': [ 15, 16, 17, 18, 19, 20, 4.4, 4.5, 4.6, 4.7, 4.8, 4.9, 5]});
+            expect(loadedData["CARTIER"].getModelList()[0].getBaseModelSKU()).to.deep.equal("CRB4084600");
+            expect(loadedData["CARTIER"].getModelList()[0].getProductList().length).to.equal(43);
+
+            // There were more (passing) tests for the rest of loadedData but I removed these to
+            // de-clutter the test suite.
         });
 
+        it("Test removal of SKU match.xlsx then addition of data via the xlsx file.",
+            async function() {
+
+            const result = await filter.removeData("SKU match");
+            filter = new ProductFilter();
+
+            const result2 = await filter.loadPersistNewData();
+            const loadedData = filter.getLoadedData();
+            expect(Object.keys(loadedData)).to.have.deep.members(
+                ["CAPOLAVORO", "CARTIER", "POMELLATO", "SCHAFFRATH", "SCHMUCKWERK"]);
+
+            expect(loadedData["CAPOLAVORO"].getModelList().length).to.equal(1);
+            expect(loadedData["CARTIER"].getModelList().length).to.equal(1);
+            expect(loadedData["POMELLATO"].getModelList().length).to.equal(1);
+            expect(loadedData["SCHAFFRATH"].getModelList().length).to.equal(1);
+            expect(loadedData["SCHMUCKWERK"].getModelList().length).to.equal(4);
+
+            expect(loadedData["CAPOLAVORO"].getModelList()[0].getAttributeValues()).to.deep.equal({
+                'MATERIAL': [ 'GOLD(R)', 'GOLD(W)' ],
+                'TYPE OF CS': [ 'AMETHYST', 'MORGANITE', 'PRASIOLITE', 'TOPAZ' ],
+                'COLOR OF CS': [ 'LILAC', 'ROSA', 'GREEN', 'BLUE', 'SKY BLUE' ],
+                'SIZE': [ 16, 17, 18 ]});
+            expect(loadedData["CAPOLAVORO"].getModelList()[0].getBaseModelSKU()).to.deep.equal("AB9MOG00373");
+            expect(loadedData["CAPOLAVORO"].getModelList()[0].getProductList().length).to.equal(15);
+
+            expect(loadedData["CARTIER"].getModelList()[0].getAttributeValues()).to.deep.equal({
+                'MATERIAL': [ 'GOLD(R)', 'GOLD(Y)', 'GOLD(W)', 'PLATIN'],
+                'SIZE': [ 15, 16, 17, 18, 19, 20, 4.4, 4.5, 4.6, 4.7, 4.8, 4.9, 5]});
+            expect(loadedData["CARTIER"].getModelList()[0].getBaseModelSKU()).to.deep.equal("CRB4084600");
+            expect(loadedData["CARTIER"].getModelList()[0].getProductList().length).to.equal(43);
+        });
     });
 
-    // More tests to come
+    // More tests to come (next up: test addition of multiple external/persisted datasets)
 });

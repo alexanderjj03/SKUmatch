@@ -3,6 +3,8 @@ import * as fs from "fs-extra";
 import {Brand} from "./dataTypes/Brand";
 import {loadJsonPersistFile, persistData, persistDir} from "./CacheDataset";
 import {externalDir, loadExcelFile} from "./loadExcelData";
+import {BaseModel} from "./dataTypes/BaseModel";
+import {AttributePairs} from "./dataTypes/Attribute";
 
 // Contains all the central functions to filter a list of products via user-provided JSON queries.
 export default class ProductFilter {
@@ -51,7 +53,7 @@ export default class ProductFilter {
                 const result = await loadJsonPersistFile(file);
                 this.loadedFiles.push(fileNameParts[0]);
 
-                this.loadedData = result; // TEMPORARY. Next: implement function to merge result with this.loadedData
+                this.loadedData = this.mergeBrandDicts(this.loadedData, result);
                 ret.push(fileNameParts[0]);
             }
         }
@@ -80,7 +82,7 @@ export default class ProductFilter {
                 const result = await loadExcelFile(file);
                 this.loadedFiles.push(fileNameParts[0]);
 
-                this.loadedData = result; // TEMPORARY. Next: implement function to merge result with this.loadedData
+                this.loadedData = this.mergeBrandDicts(this.loadedData, result);
 
                 await persistData(fileNameParts[0], result);
                 this.cachedFiles.push(fileNameParts[0]);
@@ -89,6 +91,33 @@ export default class ProductFilter {
         }
 
         return Promise.resolve(ret);
+    }
+
+    // Merges two Brand dictionaries, usually to combine the data from multiple external/persistence files.
+    // To prevent duplicate product entries, no particular product should appear in both dict1 and dict2.
+    // Nevertheless, this case is handled in PerformQuery.
+    public mergeBrandDicts(dict1: {[key: string]: Brand}, dict2: {[key: string]: Brand}): {[key: string]: Brand} {
+        if (Object.keys(dict1).length === 0) {
+            return dict2;
+        } else if (Object.keys(dict2).length === 0) {
+            return dict1;
+        }
+
+        let ret: {[key: string]: Brand} = dict1;
+        // dict1 will usually be larger as it normally equals this.loadedData.
+
+        Object.keys(dict2).forEach(key => {
+            if (typeof(ret[key]) === "undefined") {
+                ret[key] = dict2[key];
+            } else {
+                for (const baseModel of dict2[key].getModelList()) {
+                    for (const product of baseModel.getProductList()) {
+                        ret[key].addProductObj(product);
+                    }
+                }
+            }
+        });
+        return ret;
     }
 
     // Executes a user-provided query to filter through this.loadedData and return all matching product UUID's
@@ -102,15 +131,21 @@ export default class ProductFilter {
     }
 
     // Remove any data persistence file (by name) from the persistedData directory.
-    // Does NOT remove the associated data from this.loadedData.
-    public async removeData(fileName: string): Promise<void> {
+    // Does NOT remove the associated data from this.loadedData. Do nothing if file isn't present.
+    public async removeData(fileName: string): Promise<string> {
         if (!fs.existsSync(persistDir)) {
             fs.mkdirSync(persistDir);
-            return Promise.resolve();
+            return Promise.resolve("");
         }
 
-        await fs.remove(persistDir + "/" + fileName + ".json");
-        return Promise.resolve();
+        try {
+            await fs.remove(persistDir + "/" + fileName + ".json");
+            this.cachedFiles.splice(this.cachedFiles.indexOf(fileName), 1);
+            return Promise.resolve(fileName + ".json removed");
+        } catch (error: any) {
+            return Promise.resolve("");
+        }
+
     }
 
     public getLoadedData() {
