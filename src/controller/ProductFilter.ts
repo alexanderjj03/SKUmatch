@@ -110,11 +110,11 @@ export default class ProductFilter {
             if (typeof(ret[key]) === "undefined") {
                 ret[key] = dict2[key];
             } else {
-                for (const baseModel of dict2[key].getModelList()) {
-                    for (const product of baseModel.getProductList()) {
+                Object.entries(dict2[key].getModelList()).forEach(([key, model]) => {
+                    for (const product of model.getProductList()) {
                         ret[key].addProductObj(product);
                     }
-                }
+                });
             }
         });
         return ret;

@@ -38,7 +38,7 @@ export class Product {
         return this.baseModelCode;
     }
 
-    public getBaseModelSKU(): string {
+    public getModelSKU(): string {
         return this.baseModelSKU;
     }
 

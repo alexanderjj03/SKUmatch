@@ -66,7 +66,7 @@ export class BaseModel {
         return this.baseModelCode;
     }
 
-    public getBaseModelSKU(): string {
+    public getSKU(): string {
         return this.baseModelSKU;
     }
 

@@ -7,31 +7,28 @@ import {Product} from "./Product";
 export class Brand {
     private brandCode: string;
 
-    private baseModelList: BaseModel[];
+    private baseModelList: {[key: string]: BaseModel}; // Contains each base model SKU and its corresponding object.
 
     constructor(brandCode: string) {
         this.brandCode = brandCode;
-        this.baseModelList = [];
+        this.baseModelList = {};
     }
 
     public addBaseModel(model: BaseModel) {
-        this.baseModelList.push(model);
+        if (typeof(this.baseModelList[model.getSKU()]) === "undefined") {
+            this.baseModelList[model.getSKU()] = model;
+        }
     }
 
     // Alternative to addProduct (below), accepting a Product object.
     public addProductObj(product: Product) {
-        const baseModelIndex = this.baseModelList.map(value =>
-            value.getBaseModelSKU()).indexOf(product.getBaseModelSKU());
-        // index of new product's base model in baseModelList
-
-        // If the new product's base model isn't present, create a new one & add the product to it.
-        if (this.baseModelList.length === 0 || baseModelIndex === -1) {
+        if (typeof(this.baseModelList[product.getModelSKU()]) === "undefined") {
             const newBaseModel = new BaseModel(this.brandCode, product.getColCode(),
-                product.getSubColCode(), product.getBaseModelCode(), product.getBaseModelSKU());
+                product.getSubColCode(), product.getBaseModelCode(), product.getModelSKU());
             newBaseModel.addProduct(product.getUuidCode(), product.getAttributes());
-            this.addBaseModel(newBaseModel);
+            this.baseModelList[product.getModelSKU()] = newBaseModel;
         } else {
-            this.baseModelList[baseModelIndex].addProduct(product.getUuidCode(), product.getAttributes());
+            this.baseModelList[product.getModelSKU()].addProduct(product.getUuidCode(), product.getAttributes());
         }
     }
 
@@ -40,17 +37,13 @@ export class Brand {
     public addProduct(colCode: string, subColCode: string, baseModelCode: string, baseModelSKU: string,
                       uuidCode: string, attributes: AttributePairs) {
 
-        const baseModelIndex = this.baseModelList.map(value =>
-            value.getBaseModelSKU()).indexOf(baseModelSKU); // index of new product's base model in baseModelList
-
-        // If the new product's base model isn't present, create a new one & add the product to it.
-        if (this.baseModelList.length === 0 || baseModelIndex === -1) {
-            const newBaseModel = new BaseModel(this.brandCode, colCode, subColCode, baseModelCode,
-                baseModelSKU);
+        if (typeof(this.baseModelList[baseModelSKU]) === "undefined") {
+            const newBaseModel = new BaseModel(this.brandCode, colCode,
+                subColCode, baseModelCode, baseModelSKU);
             newBaseModel.addProduct(uuidCode, attributes);
-            this.addBaseModel(newBaseModel);
+            this.baseModelList[baseModelSKU] = newBaseModel;
         } else {
-            this.baseModelList[baseModelIndex].addProduct(uuidCode, attributes);
+            this.baseModelList[baseModelSKU].addProduct(uuidCode, attributes);
         }
     }
 
@@ -60,13 +53,13 @@ export class Brand {
 
     public getTotalProducts(): number {
         let total = 0;
-        for (const baseModel of this.baseModelList) {
-            total += baseModel.getProductList().length;
-        }
+        Object.entries(this.baseModelList).forEach(([key, model]) => {
+            total += model.getProductList().length;
+        });
         return total;
     }
 
-    public getModelList(): BaseModel[] {
+    public getModelList(): {[key: string]: BaseModel} {
         return this.baseModelList;
     }
 }
