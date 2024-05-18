@@ -1,0 +1,12 @@
+{
+  "title": "Schmuckwerk query with 0 results",
+  "query": {
+    "brandCode": "SCHMUCKWERK",
+    "baseModelSKU": "DA196",
+    "attributes": {
+      "MATERIAL": "GOLD(R)",
+      "GLASS COLOR": "BLACK"
+    }
+  },
+  "expected": []
+}

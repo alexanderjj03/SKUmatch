@@ -1,0 +1,11 @@
+{
+  "title": "Numerical attribute out of range",
+  "query": {
+    "brandCode": "SCHAFFRATH",
+    "baseModelSKU": "CT001",
+    "attributes": {
+      "Material": "GOLD(R)"
+    }
+  },
+  "expected": "FilterError"
+}

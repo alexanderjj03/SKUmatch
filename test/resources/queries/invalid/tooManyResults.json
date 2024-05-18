@@ -1,0 +1,11 @@
+{
+  "title": "Too many results",
+  "query": {
+    "brandCode": "SCHAFFRATH",
+    "baseModelSKU": "CT001",
+    "attributes": {
+
+    }
+  },
+  "expected": "ResultTooLargeError"
+}

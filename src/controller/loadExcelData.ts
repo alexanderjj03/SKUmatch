@@ -54,7 +54,7 @@ export function extractProduct(brandCode: string, data: any): Product {
     let uuidCode = String(data["Code"]).trim();
 
     let attributes: AttributePairs = {};
-    let curAttrNum: number = 1; // used to reflect that different base models have various numbers of attributes.
+    let curAttrNum: number = 1; // used to reflect that different base models have varying numbers of attributes.
 
     // Reading out attributes
     while ((typeof(data["Attribute Code " + curAttrNum]) !== "undefined") &&
@@ -74,7 +74,14 @@ export function extractProduct(brandCode: string, data: any): Product {
             } else if (fullValue.endsWith("MM")) {
                 value = (Number(fullValue.substring(0, fullValue.length - 2)))/10.0;
             } else {
-                value = Number(fullValue);
+                // I assume that the unitless sizes for the Schmuckwerk products (ranging from 50-64) are in mm.
+                // Similarly, the unitless sizes for three Cartier products (all have the value 16) are in cm.
+                // This is only a temporary solution. See above note on line 69.
+                if (Number(fullValue) > 30) {
+                    value = Number(fullValue)/10.0;
+                } else {
+                    value = Number(fullValue);
+                }
             }
         } else {
             value = String(data["Attribute Code " + curAttrNum + " Value"]).trim();

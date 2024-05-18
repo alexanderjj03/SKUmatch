@@ -1,0 +1,13 @@
+{
+  "title": "Query references attribute absent from base model",
+  "query": {
+    "brandCode": "CARTIER",
+    "baseModelSKU": "CRB4084600",
+    "attributes": {
+      "MATERIAL": "GOLD(Y)",
+      "SIZE": 16,
+      "QUALITY CS": "G SI"
+    }
+  },
+  "expected": "FilterError"
+}

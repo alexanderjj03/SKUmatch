@@ -1,0 +1,12 @@
+{
+  "title": "Numerical attribute out of range (part 2)",
+  "query": {
+    "brandCode": "CARTIER",
+    "baseModelSKU": "CRB4084600",
+    "attributes": {
+      "MATERIAL": "GOLD(R)",
+      "SIZE": "15"
+    }
+  },
+  "expected": "FilterError"
+}

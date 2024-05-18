@@ -13,7 +13,7 @@ export class BaseModel {
 
     private productList: Product[];
     private attributeList: Attribute[]; // attributes every associated product contains
-    private AttrValues: AttributeValueTable;
+    private AttrValues: AttributeValueTable; // Lists all attribute values that appear across productList.
 
     constructor(brandCode: string, colCode: string, subColCode: string, baseModelCode: string,
                 baseModelSKU: string) {
@@ -29,18 +29,17 @@ export class BaseModel {
 
     // Add a new product, knowing its brand and base model. Update attrValues if any new attribute values are
     // encountered. Add any new attributes to attributeList and attrValues.
-    // RUNTIME OPTIMIZATION NEEDED (do later).
     public addProduct(uuid: string, attributes: AttributePairs) {
-        Object.entries(attributes).forEach(([key, value]) => {
-            if (this.attributeList.length === 0 || this.attributeList.indexOf(key as Attribute) === -1) {
-                this.attributeList.push(key as Attribute);
-                this.AttrValues[key as Attribute] = [value];
+        Object.entries(attributes).forEach(([attr, value]) => {
+            if (this.attributeList.indexOf(attr as Attribute) === -1) {
+                this.attributeList.push(attr as Attribute);
+                this.AttrValues[attr as Attribute] = [value];
             } else {
-                let valsToCompare = this.AttrValues[key as Attribute];
+                let valsToCompare = this.AttrValues[attr as Attribute];
                 if (typeof(valsToCompare) !== "undefined") { // should always be true
                     if (valsToCompare.indexOf(value) === -1) {
                         valsToCompare.push(value);
-                        this.AttrValues[key as Attribute] = valsToCompare;
+                        this.AttrValues[attr as Attribute] = valsToCompare;
                     }
                 }
             }

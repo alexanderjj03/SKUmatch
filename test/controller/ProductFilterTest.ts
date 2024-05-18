@@ -2,7 +2,8 @@ import ProductFilter from "../../src/controller/ProductFilter";
 
 import {Attribute, AttributePairs} from "../../src/controller/dataTypes/Attribute";
 import {Brand} from "../../src/controller/dataTypes/Brand";
-import base = Mocha.reporters.base;
+import {FilterError, ResultTooLargeError} from "../../src/controller/Errors";
+import {readFileQueries} from "../TestUtil";
 
 const chai = require("chai");
 const chaiAsPromised = require("chai-as-promised");
@@ -142,7 +143,7 @@ describe("ProductFilter", function () {
             expect(loadedData["CARTIER"].getModelList()["CRB4084600"].getSKU()).to.deep.equal("CRB4084600");
             expect(loadedData["CARTIER"].getModelList()["CRB4084600"].getProductList().length).to.equal(43);
 
-            // There were more (passing) tests for the rest of loadedData but I removed these to
+            // There were more (passing) tests for the rest of loadedData, but I removed these to
             // de-clutter the test suite.
         });
 
@@ -184,18 +185,71 @@ describe("ProductFilter", function () {
     describe("PerformQuery", function () {
         let filter: ProductFilter;
         let query1: any;
-        let query2: any;
-        let query3: any;
-        let query4: any;
-        let query5: any;
-        let query6: any;
 
         before( async function () {
+            query1 = {
+                "brandCode": "SCHAFFRATH",
+                "baseModelSKU": "CT001",
+                "attributes": {
+                    "MATERIAL": "GOLD(R)",
+                    "SIZE CS (CT)": 1,
+                    "QUALITY CS": "G SI",
+                    "TEXTILE COLOR": "RED"
+                }
+            };
+
             filter = new ProductFilter();
-            const result = await filter.loadSaveAllData();
-            query1 = "";
+            try {
+                const result = await filter.loadSaveAllData();
+            } catch (err) {
+                throw new Error(`In PerformQuery Before hook, data failed to be added. \n${err}`);
+            }
         });
 
+        describe("valid queries", async function () {
+            let validQueries!: any[];
+            try {
+                validQueries = readFileQueries("valid");
+            } catch (e: unknown) {
+                expect.fail(`Failed to read one or more test queries. ${e}`);
+            }
 
+            validQueries.forEach(function (test: any) {
+                it(`${test.title}`, function () {
+                    return filter.PerformQuery(test.query)
+                        .then((result) => {
+                            return expect(result).to.have.deep.members(test.expected);
+                        }).catch((err: string) => {
+                            return expect.fail(`PerformQuery threw unexpected error: ${err}`);
+                        });
+                });
+            });
+        });
+
+        describe("invalid queries", function() {
+            let invalidQueries!: any[];
+
+            try {
+                invalidQueries = readFileQueries("invalid");
+            } catch (e: unknown) {
+                expect.fail(`Failed to read one or more test queries. ${e}`);
+            }
+
+            invalidQueries.forEach(function(test: any) {
+                it(`${test.title}`, function () {
+                    return filter.PerformQuery(test.query).then((result) => {
+                        assert.fail(`performQuery resolved when it should have rejected with ${test.expected}`);
+                    }).catch((err: any) => {
+                        if (test.expected === "FilterError") {
+                            expect(err).to.be.instanceOf(FilterError);
+                        } else if (test.expected === "ResultTooLargeError") {
+                            return expect(err).to.be.instanceOf(ResultTooLargeError);
+                        } else {
+                            assert.fail("Query threw unexpected error");
+                        }
+                    });
+                });
+            });
+        });
     });
 });

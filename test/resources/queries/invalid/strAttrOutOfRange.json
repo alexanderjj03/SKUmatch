@@ -1,0 +1,13 @@
+{
+  "title": "String attribute out of range",
+  "query": {
+    "brandCode": "POMELLATO",
+    "baseModelSKU": "PBC3070",
+    "attributes": {
+      "MATERIAL": "GOLD(R)",
+      "SIZE CS (CT)": 0.6,
+      "TYPE OF CS": "AMETHYST"
+    }
+  },
+  "expected": "FilterError"
+}

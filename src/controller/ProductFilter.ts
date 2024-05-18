@@ -1,10 +1,11 @@
-import JSZip from "jszip";
 import * as fs from "fs-extra";
 import {Brand} from "./dataTypes/Brand";
 import {loadJsonPersistFile, persistData, persistDir} from "./CacheDataset";
 import {externalDir, loadExcelFile} from "./loadExcelData";
 import {BaseModel} from "./dataTypes/BaseModel";
-import {AttributePairs} from "./dataTypes/Attribute";
+import {Attribute, AttributePairs} from "./dataTypes/Attribute";
+import {DataAddError, FilterError, ResultTooLargeError} from "./Errors";
+import {Product} from "./dataTypes/Product";
 
 // Contains all the central functions to filter a list of products via user-provided JSON queries.
 export default class ProductFilter {
@@ -29,9 +30,15 @@ export default class ProductFilter {
         if (this.dataIsLoaded) {
             return Promise.resolve();
         }
-        await this.loadCachedData();
-        await this.loadPersistNewData();
-        return Promise.resolve();
+
+        try {
+            const res1 = await this.loadCachedData();
+            const res2 = await this.loadPersistNewData();
+            this.dataIsLoaded = true;
+            return Promise.resolve();
+        } catch (err: any) {
+            return Promise.reject(new DataAddError(err.getMessage()));
+        }
     }
 
     // Code to load data from JSON persistence files in persistedData. Update this.loadedFiles and this.cachedFiles.
@@ -76,7 +83,7 @@ export default class ProductFilter {
             let fileNameParts = file.split(".");
             if (this.cachedFiles.indexOf(fileNameParts[0]) !== -1) {
                 continue;
-            }
+            } // No need to load external files that are already stored in persistedData.
 
             if (fileNameParts[1] === "xlsx") {
                 const result = await loadExcelFile(file);
@@ -106,13 +113,13 @@ export default class ProductFilter {
         let ret: {[key: string]: Brand} = dict1;
         // dict1 will usually be larger as it normally equals this.loadedData.
 
-        Object.keys(dict2).forEach(key => {
-            if (typeof(ret[key]) === "undefined") {
-                ret[key] = dict2[key];
+        Object.keys(dict2).forEach(brName => {
+            if (typeof(dict1[brName]) === "undefined") {
+                ret[brName] = dict2[brName];
             } else {
-                Object.entries(dict2[key].getModelList()).forEach(([key, model]) => {
+                Object.entries(dict2[brName].getModelList()).forEach(([bmSKU, model]) => {
                     for (const product of model.getProductList()) {
-                        ret[key].addProductObj(product);
+                        ret[brName].addProductObj(product);
                     }
                 });
             }
@@ -120,14 +127,58 @@ export default class ProductFilter {
         return ret;
     }
 
-    // Executes a user-provided query to filter through this.loadedData and return all matching product UUID's
-    // with the desired brand, base model, and attributes. Any duplicate items will only be shown once.
-    // REQUIRES: Query provides the brand name and base model SKU, in addition to any number of attribute-value pairs.
-    // Specific query format provided in tests.
+    /*
+    Executes a user-provided query to filter through this.loadedData and return all matching product UUID's
+    with the desired brand, base model, and attributes.
+    REQUIRES: Query provides the brand name and base model SKU, in addition to any number of attribute-value pairs.
+    Must follow the format provided in ProductFilterTest.ts (see query1 in line 188).
+    (Potential extension): Each attribute within query holds an array of values rather than a single value. This
+    way, a user can filter for multiple values of the same attribute at once.
+    */
     public async PerformQuery(query: any): Promise<string[]> {
         await this.loadSaveAllData(); // Ensure all data are loaded and saved to the disk first.
+        let ret: Product[] = [];
 
-        return Promise.resolve(["yes"]);
+        try {
+            let modelToSearch: BaseModel = this.loadedData[query["brandCode"]].getModelList()[query["baseModelSKU"]];
+            ret = modelToSearch.getProductList();
+            // Isolates a single baseModel to search, given the first two query components.
+
+            Object.keys(query["attributes"]).forEach(attr => {
+                this.validateQueryAttr(query, modelToSearch, attr);
+
+                ret = ret.filter((prod) =>
+                    prod.getAttributes()[attr as Attribute] === query["attributes"][attr]);
+            });
+        } catch (err: any) {
+            return Promise.reject(new FilterError(err.message));
+        }
+
+        if (ret.length >= 50) {
+            return Promise.reject(new ResultTooLargeError("Too many results " + "(" + ret.length + ")."));
+        }
+        return Promise.resolve(ret.map((prod) => prod.getUuidCode()));
+    }
+
+    // Validation function to catch any faulty attribute-value pairs. Must be run once per entry in query[attributes].
+    public validateQueryAttr(query: any, modelToSearch: BaseModel, attr: string) {
+        // If the base model doesn't contain an attribute referenced in the query
+        if (modelToSearch.getAttributeList().indexOf(attr as Attribute) === -1) {
+            throw new FilterError("Base model " + modelToSearch.getSKU() + " does not have attribute "
+                + attr as Attribute + ".");
+        }
+
+        // If the referenced attribute appears in attributeList but not AttrValues (shouldn't ever happen)
+        let modelAttrValues = modelToSearch.getAttributeValues()[attr as Attribute];
+        if (typeof(modelAttrValues) === "undefined") {
+            throw new FilterError("Inconsistency in base model " + modelToSearch.getSKU()
+                + "'s attribute data. Review code");
+
+        // If the value of the attribute referenced in the query is out of the base model's range
+        } else if (modelAttrValues.indexOf(query["attributes"][attr]) === -1) {
+            throw new FilterError("Attribute value " + attr as Attribute + " = " + query["attributes"][attr] +
+                " is out of range for base model " + modelToSearch.getSKU());
+        }
     }
 
     // Remove any data persistence file (by name) from the persistedData directory.

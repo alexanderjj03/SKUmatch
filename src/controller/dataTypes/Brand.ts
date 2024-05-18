@@ -6,7 +6,6 @@ import {Product} from "./Product";
 // attribute values as more products are added.
 export class Brand {
     private brandCode: string;
-
     private baseModelList: {[key: string]: BaseModel}; // Contains each base model SKU and its corresponding object.
 
     constructor(brandCode: string) {
@@ -20,7 +19,8 @@ export class Brand {
         }
     }
 
-    // Alternative to addProduct (below), accepting a Product object.
+    // Add a new product object to this brand. If it belongs to a base model that isn't already in
+    // this.baseModelList, create a new one.
     public addProductObj(product: Product) {
         if (typeof(this.baseModelList[product.getModelSKU()]) === "undefined") {
             const newBaseModel = new BaseModel(this.brandCode, product.getColCode(),
@@ -53,7 +53,7 @@ export class Brand {
 
     public getTotalProducts(): number {
         let total = 0;
-        Object.entries(this.baseModelList).forEach(([key, model]) => {
+        Object.entries(this.baseModelList).forEach(([bmSKU, model]) => {
             total += model.getProductList().length;
         });
         return total;

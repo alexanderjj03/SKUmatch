@@ -1,0 +1,14 @@
+{
+  "title": "Schaffrath query with unique match",
+  "query": {
+    "brandCode": "SCHAFFRATH",
+    "baseModelSKU": "CT001",
+    "attributes": {
+      "MATERIAL": "GOLD(R)",
+      "SIZE CS (CT)": 1,
+      "QUALITY CS": "G SI",
+      "TEXTILE COLOR": "RED"
+    }
+  },
+  "expected": ["SCH-00001-000034"]
+}
