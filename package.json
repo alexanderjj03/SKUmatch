@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "@types/chai": "^4.3.16",
-    "chai": "^5.1.0",
+    "chai": "^4.3.4",
     "csvtojson": "^2.0.10",
     "exceljs": "^4.4.0",
     "fs": "^0.0.1-security",
