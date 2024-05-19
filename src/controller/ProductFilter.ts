@@ -114,7 +114,7 @@ export default class ProductFilter {
         // dict1 will usually be larger as it normally equals this.loadedData.
 
         Object.keys(dict2).forEach(brName => {
-            if (typeof(dict1[brName]) === "undefined") {
+            if (typeof(ret[brName]) === "undefined") {
                 ret[brName] = dict2[brName];
             } else {
                 Object.entries(dict2[brName].getModelList()).forEach(([bmSKU, model]) => {
@@ -129,7 +129,7 @@ export default class ProductFilter {
 
     /*
     Executes a user-provided query to filter through this.loadedData and return all matching product UUID's
-    with the desired brand, base model, and attributes.
+    with the desired brand, base model, and attributes. Removes any duplicate UUID's.
     REQUIRES: Query provides the brand name and base model SKU, in addition to any number of attribute-value pairs.
     Must follow the format provided in ProductFilterTest.ts (see query1 in line 188).
     (Potential extension): Each attribute within query holds an array of values rather than a single value. This
@@ -154,10 +154,13 @@ export default class ProductFilter {
             return Promise.reject(new FilterError(err.message));
         }
 
-        if (ret.length >= 50) {
-            return Promise.reject(new ResultTooLargeError("Too many results " + "(" + ret.length + ")."));
+        let retUUIDs = ret.map((prod) => prod.getUuidCode());
+        retUUIDs = this.removeDuplicates(retUUIDs); // Remove any duplictae products (if any)
+
+        if (retUUIDs.length >= 50) {
+            return Promise.reject(new ResultTooLargeError("Too many results " + "(" + retUUIDs.length + ")."));
         }
-        return Promise.resolve(ret.map((prod) => prod.getUuidCode()));
+        return Promise.resolve(retUUIDs);
     }
 
     // Validation function to catch any faulty attribute-value pairs. Must be run once per entry in query[attributes].
@@ -179,6 +182,16 @@ export default class ProductFilter {
             throw new FilterError("Attribute value " + attr as Attribute + " = " + query["attributes"][attr] +
                 " is out of range for base model " + modelToSearch.getSKU());
         }
+    }
+
+    // Removes duplicate entries from a string arr.
+    public removeDuplicates(arr: string[]): string[] {
+        const counts: {[key: string]: number} = {};
+        for (const num of arr) {
+            counts[num] = counts[num] ? counts[num] + 1 : 1;
+        }
+
+        return Object.keys(counts);
     }
 
     // Remove any data persistence file (by name) from the persistedData directory.
