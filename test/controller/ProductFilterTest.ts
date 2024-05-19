@@ -199,11 +199,6 @@ describe("ProductFilter", function () {
             };
 
             filter = new ProductFilter();
-            try {
-                const result = await filter.loadSaveAllData();
-            } catch (err) {
-                throw new Error(`In PerformQuery Before hook, data failed to be added. \n${err}`);
-            }
         });
 
         describe("valid queries", async function () {
