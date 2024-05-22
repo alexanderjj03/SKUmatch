@@ -184,11 +184,11 @@ export default class ProductFilter {
         }
     }
 
-    // Removes duplicate entries from a string arr.
+    // Removes all unique elements in a string arr.
     public removeDuplicates(arr: string[]): string[] {
         const counts: {[key: string]: number} = {};
-        for (const num of arr) {
-            counts[num] = counts[num] ? counts[num] + 1 : 1;
+        for (const str of arr) {
+            counts[str] = counts[str] ? counts[str] + 1 : 1;
         }
 
         return Object.keys(counts);
