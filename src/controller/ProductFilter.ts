@@ -91,7 +91,7 @@ export default class ProductFilter {
 
                 this.loadedData = this.mergeBrandDicts(this.loadedData, result);
 
-                await persistData(fileNameParts[0], result);
+                const res2= await persistData(fileNameParts[0], result);
                 this.cachedFiles.push(fileNameParts[0]);
                 ret.push(fileNameParts[0]);
             }
@@ -163,7 +163,8 @@ export default class ProductFilter {
         return Promise.resolve(retUUIDs);
     }
 
-    // Validation function to catch any faulty attribute-value pairs. Must be run once per entry in query[attributes].
+    // Validation function to catch any faulty attribute-value pairs in query[attributes].
+    // Must be run once per entry in query[attributes].
     public validateQueryAttr(query: any, modelToSearch: BaseModel, attr: string) {
         // If the base model doesn't contain an attribute referenced in the query
         if (modelToSearch.getAttributeList().indexOf(attr as Attribute) === -1) {
@@ -207,7 +208,7 @@ export default class ProductFilter {
             this.cachedFiles.splice(this.cachedFiles.indexOf(fileName), 1);
             return Promise.resolve(fileName + ".json removed");
         } catch (error: any) {
-            return Promise.resolve("");
+            return Promise.resolve("File not found");
         }
 
     }

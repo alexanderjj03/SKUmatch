@@ -112,8 +112,8 @@ describe("ProductFilter", function () {
             async function() {
 
             const result = await filter.loadSaveAllData();
-            await new Promise(f => setTimeout(f, 100));
-            // sometimes an error appears if filter is reinitialized immediately after a file is added to the system.
+            // await new Promise(f => setTimeout(f, 100)); (I don't think this is needed as a precaution anymore)
+            // Rarely, an error appears if filter is reinitialized immediately after a file is added to persistedData.
 
             filter = new ProductFilter();
             const result2 = await filter.loadCachedData();

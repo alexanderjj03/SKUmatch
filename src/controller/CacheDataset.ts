@@ -37,13 +37,39 @@ export async function persistData(name: string, data: {[key: string]: Brand}): P
     }
 
     let toWrite = JSON.stringify(data);
+    await (async () => {
+        await new Promise((resolve, reject) => {
+            fs.writeFile(persistDir + "/" + name + ".json", toWrite, "utf8",
+                async (err) => {
+                    if (err) {
+                        reject(err);
+                    }
+
+                    resolve("Success");
+            });
+        }).catch((err: any) => {
+            console.log(err.getMessage());
+            return Promise.reject(new DataPersistError("Unable to save file " + name
+                + ", error encountered."));
+        });
+
+        const file = require("../." + persistDir + "/" + name + ".json");
+        // require and fs use differing relative paths.
+    })();
+
+    return Promise.resolve();
+
+    /*
     fs.writeFile(persistDir + "/" + name + ".json", toWrite, "utf8",
         async (err) => {
             if (err) {
                 await Promise.reject(new DataPersistError("Unable to save file "
                     + name + ", error encountered."));
-            } else {
-                await Promise.resolve();
             }
+
+            console.log("done");
+            // console.log(file);
+            await Promise.resolve();
         });
+    */
 }
