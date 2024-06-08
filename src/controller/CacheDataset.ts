@@ -67,8 +67,6 @@ export async function persistData(name: string, data: {[key: string]: Brand}): P
                     + name + ", error encountered."));
             }
 
-            console.log("done");
-            // console.log(file);
             await Promise.resolve();
         });
     */
