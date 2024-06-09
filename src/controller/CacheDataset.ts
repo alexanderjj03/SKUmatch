@@ -58,16 +58,4 @@ export async function persistData(name: string, data: {[key: string]: Brand}): P
     })();
 
     return Promise.resolve();
-
-    /*
-    fs.writeFile(persistDir + "/" + name + ".json", toWrite, "utf8",
-        async (err) => {
-            if (err) {
-                await Promise.reject(new DataPersistError("Unable to save file "
-                    + name + ", error encountered."));
-            }
-
-            await Promise.resolve();
-        });
-    */
 }
