@@ -2,8 +2,10 @@ import ProductFilter from "../../src/controller/ProductFilter";
 
 import {Attribute, AttributePairs} from "../../src/controller/dataTypes/Attribute";
 import {Brand} from "../../src/controller/dataTypes/Brand";
-import {FilterError, ResultTooLargeError} from "../../src/controller/Errors";
+import {DatabaseError, FilterError, NoResultsError, ResultTooLargeError} from "../../src/controller/Errors";
 import {readFileQueries} from "../TestUtil";
+import * as fs from "fs";
+import {failedQueryDir} from "../../src/controller/CacheDataset";
 
 const chai = require("chai");
 const chaiAsPromised = require("chai-as-promised");
@@ -24,18 +26,18 @@ describe("ProductFilter", function () {
         let attributes6: AttributePairs;
 
         before(  function() {
-            attributes1 = {"GLASS COLOR": "RED", "SIZE": 16, "SIZE CS (CT)": 0.75,
+            attributes1 = {"GLASS COLOR": "RED", "SIZE": "16cm", "SIZE CS (CT)": 0.75,
                 "CUT OF CS": "BRILLIANT", "TYPE OF CS": "AMETHYST"};
-            attributes2 = {"GLASS COLOR": "BLUE", "SIZE": 15, "SIZE CS (CT)": 0.75,
+            attributes2 = {"GLASS COLOR": "BLUE", "SIZE": "15cm", "SIZE CS (CT)": 0.75,
                 "CUT OF CS": "BRILLIANT", "TYPE OF CS": "AMETHYST"};
-            attributes3 = {"GLASS COLOR": "RED", "SIZE": 17, "SIZE CS (CT)": 0.35,
+            attributes3 = {"GLASS COLOR": "RED", "SIZE": "17cm", "SIZE CS (CT)": 0.35,
                 "CUT OF CS": "DULL LOL", "TYPE OF CS": "AMETHYST"};
-            attributes4 = {"MATERIAL": "DIAMANT", "COLOR OF CS": "LILAC", "SIZE": 14,
+            attributes4 = {"MATERIAL": "DIAMANT", "COLOR OF CS": "LILAC", "SIZE": "14",
                 "TEXTILE COLOR": "RED", "QUALITY CS": "G VS"};
-            attributes5 = {"MATERIAL": "TOPAZ", "COLOR OF CS": "ROSA", "SIZE": 15,
+            attributes5 = {"MATERIAL": "TOPAZ", "COLOR OF CS": "ROSA", "SIZE": "15cm",
                 "TEXTILE COLOR": "RED", "QUALITY CS": "G VS"};
             attributes6 = {"TEXTILE COLOR": "BLACK", "QUALITY CS": "G VS",
-                "MATERIAL": "MORGANITE", "COLOR OF CS": "ROSA", "SIZE": 15};
+                "MATERIAL": "MORGANITE", "COLOR OF CS": "ROSA", "SIZE": "15cm"};
         });
 
         beforeEach( function () {
@@ -58,7 +60,7 @@ describe("ProductFilter", function () {
                 "CUT OF CS", "TYPE OF CS" ]);
 
             expect(baseModel.getAttributeValues()["GLASS COLOR"]).to.have.deep.members(["RED", "BLUE"]);
-            expect(baseModel.getAttributeValues()["SIZE"]).to.have.deep.members([15, 16, 17]);
+            expect(baseModel.getAttributeValues()["SIZE"]).to.have.deep.members(["15cm", "16cm", "17cm"]);
             expect(baseModel.getAttributeValues()["SIZE CS (CT)"]).to.have.deep.members([0.35, 0.75]);
             expect(baseModel.getAttributeValues()["CUT OF CS"]).to.have.deep.members(["BRILLIANT", "DULL LOL"]);
             expect(baseModel.getAttributeValues()["TYPE OF CS"]).to.have.deep.members(["AMETHYST"]);
@@ -83,7 +85,7 @@ describe("ProductFilter", function () {
             expect(baseModel1.getAttributeList()).to.have.deep.members(["GLASS COLOR", "SIZE", "SIZE CS (CT)",
                 "CUT OF CS", "TYPE OF CS" ]);
             expect(baseModel1.getAttributeValues()["GLASS COLOR"]).to.have.deep.members(["RED", "BLUE"]);
-            expect(baseModel1.getAttributeValues()["SIZE"]).to.have.deep.members([15, 16]);
+            expect(baseModel1.getAttributeValues()["SIZE"]).to.have.deep.members(["15cm", "16cm"]);
             expect(baseModel1.getAttributeValues()["SIZE CS (CT)"]).to.have.deep.members([0.75]);
             expect(baseModel1.getAttributeValues()["CUT OF CS"]).to.have.deep.members(["BRILLIANT"]);
             expect(baseModel1.getAttributeValues()["TYPE OF CS"]).to.have.deep.members(["AMETHYST"]);
@@ -93,7 +95,7 @@ describe("ProductFilter", function () {
                 "QUALITY CS", "COLOR OF CS" ]);
             expect(baseModel2.getAttributeValues()["MATERIAL"]).to.have.deep.members(["DIAMANT",
                 "TOPAZ", "MORGANITE"]);
-            expect(baseModel2.getAttributeValues()["SIZE"]).to.have.deep.members([15, 14]);
+            expect(baseModel2.getAttributeValues()["SIZE"]).to.have.deep.members(["15cm", "14"]);
             expect(baseModel2.getAttributeValues()["TEXTILE COLOR"]).to.have.deep.members(["RED", "BLACK"]);
             expect(baseModel2.getAttributeValues()["QUALITY CS"]).to.have.deep.members(["G VS"]);
             expect(baseModel2.getAttributeValues()["COLOR OF CS"]).to.have.deep.members(["LILAC", "ROSA"]);
@@ -131,13 +133,14 @@ describe("ProductFilter", function () {
                 'MATERIAL': [ 'GOLD(R)', 'GOLD(W)' ],
                 'TYPE OF CS': [ 'AMETHYST', 'MORGANITE', 'PRASIOLITE', 'TOPAZ' ],
                 'COLOR OF CS': [ 'LILAC', 'ROSA', 'GREEN', 'BLUE', 'SKY BLUE' ],
-                'SIZE': [ 16, 17, 18 ]});
+                'SIZE': [ "16cm", "17cm", "18cm" ]});
             expect(loadedData["CAPOLAVORO"].getModelList()["AB9MOG00373"].getSKU()).to.deep.equal("AB9MOG00373");
             expect(loadedData["CAPOLAVORO"].getModelList()["AB9MOG00373"].getProductList().length).to.equal(15);
 
             expect(loadedData["CARTIER"].getModelList()["CRB4084600"].getAttributeValues()).to.deep.equal({
                 'MATERIAL': [ 'GOLD(R)', 'GOLD(Y)', 'GOLD(W)', 'PLATIN'],
-                'SIZE': [ 15, 16, 17, 18, 19, 20, 4.4, 4.5, 4.6, 4.7, 4.8, 4.9, 5]});
+                'SIZE': [ "15cm", "16", "17cm", "18cm", "19cm", "20cm", "44mm", "45mm",
+                    "46mm", "47mm", "48mm", "49mm", "50mm"]});
             expect(loadedData["CARTIER"].getModelList()["CRB4084600"].getSKU()).to.deep.equal("CRB4084600");
             expect(loadedData["CARTIER"].getModelList()["CRB4084600"].getProductList().length).to.equal(43);
 
@@ -145,10 +148,10 @@ describe("ProductFilter", function () {
             // de-clutter the test suite.
         });
 
-        it("Test removal of SKU match.xlsx then addition of data via the xlsx file.",
+        it("Test removal of persistence file then addition of data via the xlsx file.",
             async function() {
 
-            const result = await filter.removeData("SKU match");
+            const result = await filter.removeData("SKU matchxlsx");
             filter = new ProductFilter();
 
             const result2 = await filter.loadPersistNewData();
@@ -166,13 +169,14 @@ describe("ProductFilter", function () {
                 'MATERIAL': [ 'GOLD(R)', 'GOLD(W)' ],
                 'TYPE OF CS': [ 'AMETHYST', 'MORGANITE', 'PRASIOLITE', 'TOPAZ' ],
                 'COLOR OF CS': [ 'LILAC', 'ROSA', 'GREEN', 'BLUE', 'SKY BLUE' ],
-                'SIZE': [ 16, 17, 18 ]});
+                'SIZE': [ "16cm", "17cm", "18cm" ]});
             expect(loadedData["CAPOLAVORO"].getModelList()["AB9MOG00373"].getSKU()).to.deep.equal("AB9MOG00373");
             expect(loadedData["CAPOLAVORO"].getModelList()["AB9MOG00373"].getProductList().length).to.equal(15);
 
             expect(loadedData["CARTIER"].getModelList()["CRB4084600"].getAttributeValues()).to.deep.equal({
                 'MATERIAL': [ 'GOLD(R)', 'GOLD(Y)', 'GOLD(W)', 'PLATIN'],
-                'SIZE': [ 15, 16, 17, 18, 19, 20, 4.4, 4.5, 4.6, 4.7, 4.8, 4.9, 5]});
+                'SIZE': [ "15cm", "16", "17cm", "18cm", "19cm", "20cm", "44mm", "45mm",
+                    "46mm", "47mm", "48mm", "49mm", "50mm"]});
             expect(loadedData["CARTIER"].getModelList()["CRB4084600"].getSKU()).to.deep.equal("CRB4084600");
             expect(loadedData["CARTIER"].getTotalProducts()).to.equal(43);
         });
@@ -196,7 +200,15 @@ describe("ProductFilter", function () {
                 }
             };
 
+            // REMOVE THIS LATER
+            if (fs.existsSync(failedQueryDir)) {
+                fs.rmSync(failedQueryDir, { recursive: true, force: true });
+            }
+
             filter = new ProductFilter();
+            await filter.loadSaveAllData();
+            filter.getLoadedData()["CARTIER"].getModelList()["CRB4084600"].addProduct("CAR-00003-8",
+                {"MATERIAL": "GOLD(Y)", "SIZE": "16"}); // Add a duplicate product (for later testing)
         });
 
         describe("valid queries", async function () {
@@ -211,7 +223,7 @@ describe("ProductFilter", function () {
                 it(`${test.title}`, function () {
                     return filter.PerformQuery(test.query)
                         .then((result) => {
-                            return expect(result).to.have.deep.members(test.expected);
+                            return expect(result).to.deep.equal(test.expected);
                         }).catch((err: string) => {
                             return expect.fail(`PerformQuery threw unexpected error: ${err}`);
                         });
@@ -237,6 +249,10 @@ describe("ProductFilter", function () {
                             expect(err).to.be.instanceOf(FilterError);
                         } else if (test.expected === "ResultTooLargeError") {
                             return expect(err).to.be.instanceOf(ResultTooLargeError);
+                        } else if (test.expected === "NoResultsError") {
+                            return expect(err).to.be.instanceOf(NoResultsError);
+                        } else if (test.expected === "DatabaseError") {
+                            return expect(err).to.be.instanceOf(DatabaseError);
                         } else {
                             assert.fail("Query threw unexpected error");
                         }

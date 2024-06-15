@@ -1,11 +1,12 @@
 {
-  "title": "Cartier query (3 matches) (SIZE units in mm)",
+  "title": "Cartier query -- (SIZE units in mm)",
   "query": {
     "brandCode": "CARTIER",
     "baseModelSKU": "CRB4084600",
     "attributes": {
-      "SIZE": 4.8
+      "MATERIAL": "PLATIN",
+      "SIZE": "48mm"
     }
   },
-  "expected": ["CAR-00002-000005", "CAR-00002-000011", "CAR-00002-000017", "CAR-00002-000023"]
+  "expected": "CAR-00002-000023"
 }

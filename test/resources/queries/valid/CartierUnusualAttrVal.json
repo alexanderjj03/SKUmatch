@@ -1,11 +1,12 @@
 {
-  "title": "Cartier query (3 matches) (Unusual values for SIZE attribute)",
+  "title": "Cartier query -- (Units missing for SIZE attribute)",
   "query": {
     "brandCode": "CARTIER",
     "baseModelSKU": "CRB4084600",
     "attributes": {
-      "SIZE": 16
+      "SIZE": "16",
+      "MATERIAL": "GOLD(W)"
     }
   },
-  "expected": ["CAR-00001-000002", "CAR-00001-000008", "CAR-00001-000014"]
+  "expected": "CAR-00001-000014"
 }

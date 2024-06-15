@@ -1,0 +1,11 @@
+{
+  "title": "Small Schmuckwerk query (not all attrs present)",
+  "query": {
+    "brandCode": "SCHMUCKWERK",
+    "baseModelSKU": "GA414",
+    "attributes": {
+      "MATERIAL": "GOLD(R)"
+    }
+  },
+  "expected": "SMW-00003-000001"
+}

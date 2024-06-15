@@ -1,0 +1,11 @@
+{
+  "title": "Valid Pomellato query (one result) that doesn't reference every attribute",
+  "query": {
+    "brandCode": "POMELLATO",
+    "baseModelSKU": "PBC3070",
+    "attributes": {
+      "TYPE OF CS": "DIAMANT"
+    }
+  },
+  "expected": "POM-00001-000003"
+}

@@ -1,0 +1,12 @@
+{
+  "title": "String attribute out of range (wrong type)",
+  "query": {
+    "brandCode": "SCHMUCKWERK",
+    "baseModelSKU": "GR225",
+    "attributes": {
+      "MATERIAL": "GOLD(R)",
+      "SIZE": 51
+    }
+  },
+  "expected": "FilterError"
+}

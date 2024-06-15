@@ -8,6 +8,7 @@ import {BaseModel} from "./dataTypes/BaseModel";
 import {AttributePairs} from "./dataTypes/Attribute";
 
 export const persistDir = "./persistedData";
+export const failedQueryDir = "./failedQueries";
 
 // Load a Brand dictionary from a JSON persistence file.
 export async function loadJsonPersistFile(name: string): Promise<{[key: string]: Brand}> {
@@ -54,6 +55,42 @@ export async function persistData(name: string, data: {[key: string]: Brand}): P
         });
 
         const file = require("../." + persistDir + "/" + name + ".json");
+        // require and fs use differing relative paths.
+    })();
+
+    return Promise.resolve();
+}
+
+// Persists "failed queries" (queries that result in multiple return values despite filtering via all the base model's
+// attributes. Ideally, this function should never be called. But if it is, the developers can know what went wrong.
+export async function persistFailedQuery(query: any, result: string[]): Promise<void> {
+    if (!fs.existsSync(failedQueryDir)) {
+        fs.mkdirSync(failedQueryDir);
+    }
+
+    let writeObj: any = {};
+    writeObj["Query"] = query;
+    writeObj["Result"] = result;
+
+    let name = new Date();
+    let toWrite = JSON.stringify(writeObj);
+    await (async () => {
+        await new Promise((resolve, reject) => {
+            fs.writeFile(failedQueryDir + "/" + name + ".json", toWrite, "utf8",
+                async (err) => {
+                    if (err) {
+                        reject(err);
+                    }
+
+                    resolve("Success");
+                });
+        }).catch((err: any) => {
+            console.log(err.getMessage());
+            return Promise.reject(new DataPersistError("Unable to save file " + name
+                + ", error encountered."));
+        });
+
+        const file = require("../." + failedQueryDir + "/" + name + ".json");
         // require and fs use differing relative paths.
     })();
 

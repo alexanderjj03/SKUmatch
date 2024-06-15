@@ -1,17 +1,17 @@
 import * as fs from "fs-extra";
 import {Brand} from "./dataTypes/Brand";
-import {loadJsonPersistFile, persistData, persistDir} from "./CacheDataset";
+import {loadJsonPersistFile, persistData, persistDir, persistFailedQuery} from "./CacheDataset";
 import {externalDir, loadExcelFile} from "./loadExcelData";
 import {BaseModel} from "./dataTypes/BaseModel";
 import {Attribute, AttributePairs} from "./dataTypes/Attribute";
-import {DataAddError, FilterError, ResultTooLargeError} from "./Errors";
+import {DataAddError, DatabaseError, FilterError, NoResultsError, ResultTooLargeError} from "./Errors";
 import {Product} from "./dataTypes/Product";
 
 // Contains all the central functions to filter a list of products via user-provided JSON queries.
 export default class ProductFilter {
     private loadedData: {[key: string]: Brand}; // Contains each brand name and its corresponding Brand object.
-    private loadedFiles: string[]; // Should NOT contain the file extension (same for cachedFiles)
-    private cachedFiles: string[];
+    private loadedFiles: string[]; // Represented as a filename (in externalData) minus the period (e.g. SKU matchxlsx).
+    private cachedFiles: string[]; // Represented in the same way as loadedFiles.
     private dataIsLoaded: boolean;
 
     constructor() {
@@ -81,18 +81,19 @@ export default class ProductFilter {
         let files = await fs.readdir(externalDir);
         for (const file of files) {
             let fileNameParts = file.split(".");
-            if (this.cachedFiles.indexOf(fileNameParts[0]) !== -1) {
+            let rawName = fileNameParts[0] + fileNameParts[1]; // File name without the period
+            if (this.cachedFiles.includes(rawName)) {
                 continue;
             } // No need to load external files that are already stored in persistedData.
 
             if (fileNameParts[1] === "xlsx") {
                 const result = await loadExcelFile(file);
-                this.loadedFiles.push(fileNameParts[0]);
+                this.loadedFiles.push(rawName);
 
                 this.loadedData = this.mergeBrandDicts(this.loadedData, result);
 
-                const res2= await persistData(fileNameParts[0], result);
-                this.cachedFiles.push(fileNameParts[0]);
+                const res2= await persistData(rawName, result);
+                this.cachedFiles.push(rawName);
                 ret.push(fileNameParts[0]);
             }
         }
@@ -128,19 +129,19 @@ export default class ProductFilter {
     }
 
     /*
-    Executes a user-provided query to filter through this.loadedData and return all matching product UUID's
-    with the desired brand, base model, and attributes. Removes any duplicate UUID's.
-    REQUIRES: Query provides the brand name and base model SKU, in addition to any number of attribute-value pairs.
-    Must follow the format provided in ProductFilterTest.ts (see query1 in line 188).
-    (Potential extension): Each attribute within query holds an array of values rather than a single value. This
-    way, a user can filter for multiple values of the same attribute at once.
+    Executes a user-provided query to filter through this.loadedData and return a matching product UUID with the
+    desired brand, base model, and attributes. Removes any duplicate UUID's.
+    REQUIRES: query provides the brand name and base model SKU, in addition to any number of attribute-value pairs
+    (so long as the base model contains every referenced attribute).
+    Must follow the format provided in ProductFilter.spec.ts (line 192).
     */
-    public async PerformQuery(query: any): Promise<string[]> {
+    public async PerformQuery(query: any): Promise<string> {
         await this.loadSaveAllData(); // Ensure all data are loaded and saved to the disk first.
+        let modelToSearch: BaseModel;
         let ret: Product[] = [];
 
         try {
-            let modelToSearch: BaseModel = this.loadedData[query["brandCode"]].getModelList()[query["baseModelSKU"]];
+            modelToSearch = this.loadedData[query["brandCode"]].getModelList()[query["baseModelSKU"]];
             ret = modelToSearch.getProductList();
             // Isolates a single baseModel to search, given the first two query components.
 
@@ -157,17 +158,34 @@ export default class ProductFilter {
         let retUUIDs = ret.map((prod) => prod.getUuidCode());
         retUUIDs = this.removeDuplicates(retUUIDs); // Remove any duplictae products (if any)
 
-        if (retUUIDs.length >= 50) {
-            return Promise.reject(new ResultTooLargeError("Too many results " + "(" + retUUIDs.length + ")."));
+        if (retUUIDs.length >= 2) {
+            let attrsReferenced =  Object.keys(query["attributes"]).length;
+            let AttrNumDiff = modelToSearch.getAttributeList().length - attrsReferenced;
+            // Checking if any of modelToSearch's attributes aren't referenced in query
+
+            if (AttrNumDiff > 0) {
+                return Promise.reject(new ResultTooLargeError("Too many results " + "(" + retUUIDs.length + "). " +
+                    "Please refine your search. " + AttrNumDiff + " attribute values remain un-entered."));
+            } else {
+                await persistFailedQuery(query, retUUIDs);
+                // This is of interest to the developers for bug fixing purposes.
+                return Promise.reject(new DatabaseError("Multiple matching products found: " + retUUIDs + ". " +
+                    "Your query and its result have been sent to our developers for review. " +
+                    "Apologies for the inconvenience"));
+            }
+        } else if (retUUIDs.length === 0) {
+            return Promise.reject(new NoResultsError("No results found. Please ensure all " +
+                "attribute values are entered correctly"));
         }
-        return Promise.resolve(retUUIDs);
+
+        return Promise.resolve(retUUIDs[0]); // There should only be one return value.
     }
 
-    // Validation function to catch any faulty attribute-value pairs in query[attributes].
+    // Validation function to catch any faulty attribute-value(s) pairs in query[attributes].
     // Must be run once per entry in query[attributes].
     public validateQueryAttr(query: any, modelToSearch: BaseModel, attr: string) {
         // If the base model doesn't contain an attribute referenced in the query
-        if (modelToSearch.getAttributeList().indexOf(attr as Attribute) === -1) {
+        if (!modelToSearch.getAttributeList().includes(attr as Attribute)) {
             throw new FilterError("Base model " + modelToSearch.getSKU() + " does not have attribute "
                 + attr as Attribute + ".");
         }
@@ -178,8 +196,8 @@ export default class ProductFilter {
             throw new FilterError("Inconsistency in base model " + modelToSearch.getSKU()
                 + "'s attribute data. Review code");
 
-        // If the value of the attribute referenced in the query is out of the base model's range
-        } else if (modelAttrValues.indexOf(query["attributes"][attr]) === -1) {
+        // If the desired value(s) of the attribute referenced in the query is/are out of the base model's range
+        } else if (!modelAttrValues.includes(query["attributes"][attr])) {
             throw new FilterError("Attribute value " + attr as Attribute + " = " + query["attributes"][attr] +
                 " is out of range for base model " + modelToSearch.getSKU());
         }

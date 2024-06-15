@@ -1,11 +1,12 @@
 {
-  "title": "Too many results",
+  "title": "Too many results (all attributes listed, problem in database)",
   "query": {
-    "brandCode": "SCHAFFRATH",
-    "baseModelSKU": "CT001",
+    "brandCode": "CARTIER",
+    "baseModelSKU": "CRB4084600",
     "attributes": {
-
+      "MATERIAL": "GOLD(Y)",
+      "SIZE": "16"
     }
   },
-  "expected": "ResultTooLargeError"
+  "expected": "DatabaseError"
 }

@@ -25,3 +25,17 @@ export class ResultTooLargeError extends Error {
         Error.captureStackTrace(this, ResultTooLargeError);
     }
 }
+
+export class NoResultsError extends Error {
+    constructor(message?: string) {
+        super(message);
+        Error.captureStackTrace(this, NoResultsError);
+    }
+}
+
+export class DatabaseError extends Error {
+    constructor(message?: string) {
+        super(message);
+        Error.captureStackTrace(this, DatabaseError);
+    }
+}

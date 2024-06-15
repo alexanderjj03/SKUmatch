@@ -1,12 +1,11 @@
 {
-  "title": "String attribute out of range (part 2)",
+  "title": "String attribute out of range (units included when they're missing)",
   "query": {
-    "brandCode": "POMELLATO",
-    "baseModelSKU": "PBC3070",
+    "brandCode": "CARTIER",
+    "baseModelSKU": "CRB4084600",
     "attributes": {
-      "MATERIAL": "GOLD(R)",
-      "SIZE CS (CT)": 0.6,
-      "TYPE OF CS": {"name": "RUBY"}
+      "MATERIAL": "GOLD(Y)",
+      "SIZE": "16cm"
     }
   },
   "expected": "FilterError"

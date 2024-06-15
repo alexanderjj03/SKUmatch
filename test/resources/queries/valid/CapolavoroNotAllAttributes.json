@@ -1,0 +1,13 @@
+{
+  "title": "Capolavoro query -- not all attributes in query",
+  "query": {
+    "brandCode": "CAPOLAVORO",
+    "baseModelSKU": "AB9MOG00373",
+    "attributes": {
+      "MATERIAL": "GOLD(W)",
+      "SIZE": "18cm",
+      "COLOR OF CS": "BLUE"
+    }
+  },
+  "expected": "CAP-00001-000012"
+}

@@ -5,8 +5,9 @@
     "baseModelSKU": "DA196",
     "attributes": {
       "MATERIAL": "GOLD(R)",
-      "GLASS COLOR": "BLACK"
+      "GLASS COLOR": "BLACK",
+      "TEXTILE COLOR": "BLACK"
     }
   },
-  "expected": []
+  "expected": "NoResultsError"
 }

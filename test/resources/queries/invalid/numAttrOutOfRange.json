@@ -1,11 +1,11 @@
 {
   "title": "Numerical attribute out of range",
   "query": {
-    "brandCode": "CARTIER",
-    "baseModelSKU": "CRB4084600",
+    "brandCode": "SCHAFFRATH",
+    "baseModelSKU": "CT001",
     "attributes": {
       "MATERIAL": "GOLD(R)",
-      "SIZE": 12
+      "SIZE CS (CT)": 0.3555
     }
   },
   "expected": "FilterError"

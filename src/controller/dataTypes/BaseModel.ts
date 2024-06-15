@@ -31,13 +31,13 @@ export class BaseModel {
     // encountered. Add any new attributes to attributeList and attrValues.
     public addProduct(uuid: string, attributes: AttributePairs) {
         Object.entries(attributes).forEach(([attr, value]) => {
-            if (this.attributeList.indexOf(attr as Attribute) === -1) {
+            if (!this.attributeList.includes(attr as Attribute)) {
                 this.attributeList.push(attr as Attribute);
                 this.AttrValues[attr as Attribute] = [value];
             } else {
                 let valsToCompare = this.AttrValues[attr as Attribute];
                 if (typeof(valsToCompare) !== "undefined") { // should always be true
-                    if (valsToCompare.indexOf(value) === -1) {
+                    if (!valsToCompare.includes(value)) {
                         valsToCompare.push(value);
                         this.AttrValues[attr as Attribute] = valsToCompare;
                     }

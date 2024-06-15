@@ -65,24 +65,7 @@ export function extractProduct(brandCode: string, data: any): Product {
         if (attr === Attribute.SizeCS) {
             value = Number(data["Attribute Code " + curAttrNum + " Value"]);
         } else if (attr === Attribute.Size) {
-            // Covers the occasional case in which the SIZE attribute value is missing a unit (e.g. row 23)
-            // If all this is unnecessary, or if SIZE is better off represented as a string, please inform me.
-
-            let fullValue: string = String(data["Attribute Code " + curAttrNum + " Value"]).trim();
-            if (fullValue.endsWith("CM")) {
-                value = Number(fullValue.substring(0, fullValue.length - 2));
-            } else if (fullValue.endsWith("MM")) {
-                value = (Number(fullValue.substring(0, fullValue.length - 2)))/10.0;
-            } else {
-                // I assume that the unitless sizes for the Schmuckwerk products (ranging from 50-64) are in mm.
-                // Similarly, the unitless sizes for three Cartier products (all have the value 16) are in cm.
-                // This is only a temporary solution. See above note on line 69.
-                if (Number(fullValue) > 30) {
-                    value = Number(fullValue)/10.0;
-                } else {
-                    value = Number(fullValue);
-                }
-            }
+            value = String(data["Attribute Code " + curAttrNum + " Value"]).trim().toLowerCase();
         } else {
             value = String(data["Attribute Code " + curAttrNum + " Value"]).trim();
         }

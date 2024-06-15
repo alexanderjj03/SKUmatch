@@ -1,0 +1,17 @@
+{
+  "title": "Larger Schmuckwerk query",
+  "query": {
+    "attributes": {
+      "SIZE": "54",
+      "SIZE CS (CT)": 0.4,
+      "MATERIAL": "PLATIN",
+      "TYPE OF CS": "DIAMANT",
+      "QUALITY CS": "TW/VS",
+      "CUT OF CS": "BRILLIANT",
+      "COLOR OF CS": "WHITE"
+    },
+    "brandCode": "SCHMUCKWERK",
+    "baseModelSKU": "GR225"
+  },
+  "expected": "SMW-00005-000050"
+}

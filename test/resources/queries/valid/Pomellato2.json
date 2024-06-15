@@ -1,5 +1,5 @@
 {
-  "title": "Pomellato query (1 match)",
+  "title": "Pomellato query 2",
   "query": {
     "brandCode": "POMELLATO",
     "baseModelSKU": "PBC3070",
@@ -9,5 +9,5 @@
       "SIZE CS (CT)": 0.6
     }
   },
-  "expected": ["POM-00001-000001"]
+  "expected": "POM-00001-000001"
 }

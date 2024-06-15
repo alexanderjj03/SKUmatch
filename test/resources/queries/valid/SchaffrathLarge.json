@@ -1,0 +1,17 @@
+{
+  "title": "Schaffrath large query",
+  "query": {
+    "attributes": {
+      "MATERIAL": "GOLD(R)",
+      "QUALITY CS": "G SI",
+      "TEXTILE COLOR": "RED",
+      "TYPE OF CS": "DIAMANT",
+      "CUT OF CS": "BRILLIANT",
+      "COLOR OF CS": "WHITE",
+      "SIZE CS (CT)": 0.3
+    },
+    "brandCode": "SCHAFFRATH",
+    "baseModelSKU": "CT001"
+  },
+  "expected": "SCH-00001-000010"
+}
