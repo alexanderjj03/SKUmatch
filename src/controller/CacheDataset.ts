@@ -91,7 +91,6 @@ export async function persistFailedQuery(query: any, result: string[]): Promise<
         });
 
         const file = require("../." + failedQueryDir + "/" + name + ".json");
-        // require and fs use differing relative paths.
     })();
 
     return Promise.resolve();

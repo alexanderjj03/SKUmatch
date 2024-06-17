@@ -135,7 +135,7 @@ export default class ProductFilter {
     (so long as the base model contains every referenced attribute).
     Must follow the format provided in ProductFilter.spec.ts (line 192).
     */
-    public async PerformQuery(query: any): Promise<string> {
+    public async performQuery(query: any): Promise<string> {
         await this.loadSaveAllData(); // Ensure all data are loaded and saved to the disk first.
         let modelToSearch: BaseModel;
         let ret: Product[] = [];

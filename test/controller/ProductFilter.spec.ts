@@ -221,7 +221,7 @@ describe("ProductFilter", function () {
 
             validQueries.forEach(function (test: any) {
                 it(`${test.title}`, function () {
-                    return filter.PerformQuery(test.query)
+                    return filter.performQuery(test.query)
                         .then((result) => {
                             return expect(result).to.deep.equal(test.expected);
                         }).catch((err: string) => {
@@ -242,7 +242,7 @@ describe("ProductFilter", function () {
 
             invalidQueries.forEach(function(test: any) {
                 it(`${test.title}`, function () {
-                    return filter.PerformQuery(test.query).then((result) => {
+                    return filter.performQuery(test.query).then((result) => {
                         assert.fail(`performQuery resolved when it should have rejected with ${test.expected}`);
                     }).catch((err: any) => {
                         if (test.expected === "FilterError") {
