@@ -54,7 +54,7 @@ export function AttrSelector({brand, baseModel}) {
         let possibleVals = [];
         for (const [attr, value] of Object.entries(possibleAttrs)) {
             if (typeof(attrToDesc[attr] !== "undefined")) {
-                possibleVals = [''];
+                possibleVals = [];
                 if (Array.isArray(value)) {
                     for (const entry of value) {
                         possibleVals.push(entry);
