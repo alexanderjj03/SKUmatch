@@ -1,0 +1,11 @@
+.Attribute-dropdown {
+    display:flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction:row;
+}
+
+.Attribute-Selector {
+    display:flex;
+    flex-direction:column;
+}

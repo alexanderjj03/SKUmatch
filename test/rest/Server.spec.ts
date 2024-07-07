@@ -10,12 +10,12 @@ const express = require("express");
 
 // Tests for REST server requests
 describe("REST server tests", function () {
-    const localHost = "http://localhost:6666";
+    const localHost = "http://localhost:3500";
     let filter: ProductFilter;
     let server: Server;
 
     before(async function () {
-        server = new Server(6666);
+        server = new Server(3500);
         filter = Server.filter;
         await server.start();
     });

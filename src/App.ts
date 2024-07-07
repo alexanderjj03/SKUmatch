@@ -16,5 +16,5 @@ export class App {
 console.log("Server initializing:");
 const app = new App();
 (async () => {
-    await app.initServer(6666);
+    await app.initServer(3500);
 })();
