@@ -2,6 +2,8 @@ import React, {useEffect, useState} from "react";
 import Dropdown from 'react-dropdown'; // Source: https://www.npmjs.com/package/react-dropdown?activeTab=readme
 import 'react-dropdown/style.css';
 import './attrSelector.css';
+import Button from "react-widgets/Button";
+import {QueryResult} from "./queryResult";
 
 const localHost = "http://localhost:3500";
 
@@ -14,8 +16,8 @@ export function AttrSelector({brand, baseModel}) {
     const [attrsLoaded, setAttrsLoaded] = useState(false);
     const [possibleAttrs, setPossibleAttrs] = useState({});
     const [queryRan, setQueryRan] = useState(false);
-
-    let query = {"brandCode": brand, "baseModelSKU": baseModel, "attributes": {}};
+    const [query, setQuery] = useState({"brandCode": brand,
+        "baseModelSKU": baseModel, "attributes": {}});
 
     const attrToDesc = {
         "MATERIAL": "Material", "TYPE OF CS": "Central Stone type",
@@ -25,11 +27,11 @@ export function AttrSelector({brand, baseModel}) {
     };
 
     const fetchAttrs = () => {
-        query = {
+        setQuery({
             "brandCode": brand,
             "baseModelSKU": baseModel,
             "attributes": {}
-        };
+        });
         setQueryRan(false);
         setAttrsLoaded(false);
         return fetch(getAttrsUrl + brand + '/' + baseModel)
@@ -54,7 +56,7 @@ export function AttrSelector({brand, baseModel}) {
         let possibleVals = [];
         for (const [attr, value] of Object.entries(possibleAttrs)) {
             if (typeof(attrToDesc[attr] !== "undefined")) {
-                possibleVals = [];
+                possibleVals = ['Select...'];
                 if (Array.isArray(value)) {
                     for (const entry of value) {
                         possibleVals.push(entry);
@@ -63,24 +65,30 @@ export function AttrSelector({brand, baseModel}) {
 
                 dropdownArr.push(
                     <div className={"Attribute-dropdown"} key={attr}>
-                        <p>
-                            {attrToDesc[attr]}:
-                        </p>
+                        <span>
+                            {attrToDesc[attr]}: &nbsp;
+                        </span>
                         <Dropdown
                             value=''
                             onChange={(val) => {
-                                if (val.value != '') {
-                                    let queryAttrs = query["attributes"];
-                                    queryAttrs[attr] = val.value;
-                                    query["attributes"] = queryAttrs;
+                                setQueryRan(false);
+                                let curQuery = query;
+                                if (val.value !== 'Select...') {
+                                    curQuery["attributes"][attr] = val.value;
+                                } else if (typeof query["attributes"][attr] !== "undefined") {
+                                    delete curQuery["attributes"][attr];
                                 }
+                                setQuery(curQuery);
                             }}
                             options={possibleVals}
-                            />
-                    </div>);
+                        />
+                        <span>
+                            &nbsp; ({possibleVals.length - 1} results)
+                        </span>
+                    </div>
+                );
             }
         }
-        ;
         return dropdownArr;
     }
 
@@ -100,20 +108,26 @@ export function AttrSelector({brand, baseModel}) {
             return (
                 <div className={"Attribute-Selector"}>
                     <p>
-                        Attributes:
+                        Attributes (we recommend filling all attribute values
+                        to ensure that a unique product is found):
                     </p>
                     {displayAttrDropdowns()}
+                    <p>
+                        <button onClick={() => {setQueryRan(true)}}>
+                            Find matching product code
+                        </button>
+                    </p>
                 </div>
             );
         } else {
             return (
                 <div className={"Attribute-Selector"}>
                     <p>
-                        Attributes:
+                        Attributes (we recommend filling all attribute values
+                        to ensure that a unique product is found):
                     </p>
-                    <p>
-                        {Object.keys(possibleAttrs)}
-                    </p>
+                    {displayAttrDropdowns()}
+                    <QueryResult query={query}/>
                 </div>
             );
         }

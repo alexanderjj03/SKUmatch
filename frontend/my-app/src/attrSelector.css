@@ -2,10 +2,12 @@
     display:flex;
     align-items: center;
     justify-content: center;
-    flex-direction:row;
+    flex-direction: row;
+    padding: 8px;
 }
 
 .Attribute-Selector {
     display:flex;
     flex-direction:column;
+    align-items: center;
 }

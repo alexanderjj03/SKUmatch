@@ -121,7 +121,7 @@ describe("ProductFilter", function () {
 
             const loadedData = filter.getLoadedData();
             expect(Object.keys(loadedData)).to.have.deep.members(
-                ["CAPOLAVORO", "CARTIER", "POMELLATO", "SCHAFFRATH", "SCHMUCKWERK"]);
+                ["CAPOLAVORO", "CARTIER", "POMELLATO", "SCHAFFRATH", "SCHMUCKWERK", "ROLEX"]);
 
             expect(Object.keys(loadedData["CAPOLAVORO"].getModelList()).length).to.equal(1);
             expect(Object.keys(loadedData["CARTIER"].getModelList()).length).to.equal(1);
@@ -157,7 +157,7 @@ describe("ProductFilter", function () {
             const result2 = await filter.loadPersistNewData();
             const loadedData = filter.getLoadedData();
             expect(Object.keys(loadedData)).to.have.deep.members(
-                ["CAPOLAVORO", "CARTIER", "POMELLATO", "SCHAFFRATH", "SCHMUCKWERK"]);
+                ["CAPOLAVORO", "CARTIER", "POMELLATO", "SCHAFFRATH", "SCHMUCKWERK", "ROLEX"]);
 
             expect(Object.keys(loadedData["CAPOLAVORO"].getModelList()).length).to.equal(1);
             expect(Object.keys(loadedData["CARTIER"].getModelList()).length).to.equal(1);
@@ -180,8 +180,6 @@ describe("ProductFilter", function () {
             expect(loadedData["CARTIER"].getModelList()["CRB4084600"].getSKU()).to.deep.equal("CRB4084600");
             expect(loadedData["CARTIER"].getTotalProducts()).to.equal(43);
         });
-
-        // More tests to come (next up: test addition of multiple external/persisted datasets)
     });
 
     describe("PerformQuery", function () {
@@ -201,9 +199,11 @@ describe("ProductFilter", function () {
             };
 
             // REMOVE THIS LATER
+            /*
             if (fs.existsSync(failedQueryDir)) {
                 fs.rmSync(failedQueryDir, { recursive: true, force: true });
             }
+            */
 
             filter = new ProductFilter();
             await filter.loadSaveAllData();

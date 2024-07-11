@@ -165,7 +165,7 @@ export default class ProductFilter {
 
             if (AttrNumDiff > 0) {
                 return Promise.reject(new ResultTooLargeError("Too many results " + "(" + retUUIDs.length + "). " +
-                    "Please refine your search. " + AttrNumDiff + " attribute values remain un-entered."));
+                    "Please refine your search. " + AttrNumDiff + " attribute value(s) remain un-entered."));
             } else {
                 await persistFailedQuery(query, retUUIDs);
                 // This is of interest to the developers for bug fixing purposes.

@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {BaseModelSelector} from "./baseModelSelector";
+import Combobox from "react-widgets/Combobox";
 import Dropdown from 'react-dropdown'; // Source: https://www.npmjs.com/package/react-dropdown?activeTab=readme
 import 'react-dropdown/style.css';
 import './App.css';
@@ -29,6 +30,9 @@ function App() {
             dispList.push(brand.substring(0, 1) + brand.substring(1).toLowerCase());
           }
 
+          dispList.sort(); // sort in alphabetical order
+          dispList.unshift('Select...'); // blank option
+
           setDisplayList(dispList);
           setDispListLoaded(true);
         })
@@ -53,58 +57,73 @@ function App() {
     if (!isSelected) {
       return (
           <div className="App">
-            <header className="App-header">
-              <>
-                <h1>Get Product Code via Attributes</h1>
-                <p>
-                  Brand Name:
-                </p>
-                <Dropdown
-                    value={rawSelect}
-                    onChange={(val) => {
-                      if (val.value != '') {
-                        setRawSelect(val.value);
-                        const realBrand = val.value.toUpperCase();
-                        setSelected(true);
-                        setSelectedBrand(realBrand);
-                      }
-                    }}
-                    options={displayList}
-                />
-              </>
-            </header>
+              <header className="App-header">
+                  <h1>Get Product Code via Attributes</h1>
+                  <div className="Brand-Selector">
+                      <span>
+                          Brand Name: &nbsp;
+                      </span>
+                      <Dropdown
+                          value={rawSelect}
+                          onChange={val => {
+                              setRawSelect(val.value);
+                              if (val.value !== 'Select...') {
+                                  const realBrand = val.value.toUpperCase();
+                                  setSelected(true);
+                                  setSelectedBrand(realBrand);
+                              } else {
+                                  setSelectedBrand('Select...');
+                              }
+                          }}
+                          options={displayList}
+                      />
+                      <span>
+                          &nbsp; ({displayList.length - 1} results)
+                      </span>
+                  </div>
+              </header>
           </div>
       );
     } else {
-      return (
-          <div className="App">
-            <header className="App-header">
-              <>
-                <h1>Get Product Code via Attributes</h1>
-                <p>
-                  Brand Name:
-                </p>
-                <div>
-                  <Dropdown
-                      value={rawSelect}
-                      onChange={(val) => {
-                        if (val.value != '') {
-                          setRawSelect(val.value);
-                          const realBrand = val.value.toUpperCase();
-                          setSelected(true);
-                          setSelectedBrand(realBrand);
-                        }
-                      }}
-                      options={displayList}
-                  />
-                </div>
-                <div>
-                  <BaseModelSelector brand = {selectedBrand} />
-                </div>
-              </>
-            </header>
-          </div>
-      );
+        return (
+            <div className="App">
+              <header className="App-header">
+                  <h1>Get Product Code via Attributes</h1>
+                  <p>
+                      <button onClick={() => {
+                          setSelectedBrand('Select...')
+                          setRawSelect("Select...");
+                          setSelected(false);
+                      }}>
+                          Clear all entries
+                      </button>
+                  </p>
+                  <div className="Brand-Selector">
+                      <span>
+                          Brand Name: &nbsp;
+                      </span>
+                      <Dropdown
+                          value={rawSelect}
+                          onChange={val => {
+                              setRawSelect(val.value);
+                              if (val.value !== 'Select...') {
+                                  const realBrand = val.value.toUpperCase();
+                                  setSelectedBrand(realBrand);
+                              } else {
+                                  setSelectedBrand('Select...');
+                                  setSelected(false);
+                              }
+                          }}
+                          options={displayList}
+                      />
+                      <span>
+                          &nbsp; ({displayList.length - 1} results)
+                      </span>
+                  </div>
+                  <BaseModelSelector brand={selectedBrand}/>
+              </header>
+            </div>
+        );
     }
   }
 }

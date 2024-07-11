@@ -19,13 +19,21 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: normal;
   font-size: calc(10px + 1vmin);
   color: white;
 }
 
 .App-link {
   color: #61dafb;
+}
+
+.Brand-Selector {
+  display:flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+  padding: 8px;
 }
 
 @keyframes App-logo-spin {

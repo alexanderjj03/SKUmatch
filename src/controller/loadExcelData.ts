@@ -59,7 +59,7 @@ export function extractProduct(brandCode: string, data: any): Product {
     // Reading out attributes
     while ((typeof(data["Attribute Code " + curAttrNum]) !== "undefined") &&
     (typeof(data["Attribute Code " + curAttrNum + " Value"]) !== "undefined")) {
-        let attr: Attribute = data["Attribute Code " + curAttrNum] as Attribute;
+        let attr: Attribute = String(data["Attribute Code " + curAttrNum]).trim() as Attribute;
         let value: any;
 
         if (attr === Attribute.SizeCS) {

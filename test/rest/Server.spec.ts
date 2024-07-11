@@ -29,8 +29,8 @@ describe("REST server tests", function () {
             .get("/data")
             .then(function (res: Response) {
                 expect(res.body.result).to.have.deep.members(["CAPOLAVORO", "CARTIER", "POMELLATO",
-                    "SCHAFFRATH", "SCHMUCKWERK"]);
-                expect(res.body.result.length).to.deep.equal(5);
+                    "SCHAFFRATH", "SCHMUCKWERK", "ROLEX"]);
+                expect(res.body.result.length).to.deep.equal(6);
                 expect(res.status).to.be.equal(200);
             })
             .catch(function (err) {
@@ -269,7 +269,7 @@ describe("REST server tests", function () {
             .expect("Content-Type", /json/)
             .then(function (res: Response) {
                 expect(res.body.error).to.deep.equal("Too many results (3). Please refine your search. " +
-                    "4 attribute values remain un-entered.");
+                    "4 attribute value(s) remain un-entered.");
                 expect(res.status).to.be.equal(400);
             })
             .catch(function (err) {

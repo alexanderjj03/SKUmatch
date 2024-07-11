@@ -2,6 +2,7 @@ import React, {useEffect, useState} from "react";
 import Dropdown from 'react-dropdown'; // Source: https://www.npmjs.com/package/react-dropdown?activeTab=readme
 import 'react-dropdown/style.css';
 import {AttrSelector} from "./attrSelector";
+import './baseModelSelector.css';
 
 const localHost = "http://localhost:3500";
 
@@ -22,22 +23,28 @@ export function BaseModelSelector({brand}) {
         return fetch(getModelsUrl + brand)
             .then((res) =>res.json())
             .then((data) => {
-                setModelList(data.result);
+                let dispList = ['Select...'];
+                for (const model of data.result) {
+                    dispList.push(model);
+                }
+                setModelList(dispList);
                 setModelListLoaded(true);
             })
             .catch(err => console.log(err))
     }
 
     useEffect(() => {
-        setBrandName(brand);
-        fetchModels();
+        if (brand !== 'Select...') {
+            setBrandName(brand);
+            fetchModels();
+        }
     }, [brand]);
 
     if (!modelListLoaded) {
         return (
-            <div className={"Model Selector"}>
+            <div className={"Model-Selector"}>
                 <p>
-                    Base Model SKU:
+                    Base Model Code (SKU):
                 </p>
                 <p>
                     Base model list loading, please wait:
@@ -47,38 +54,50 @@ export function BaseModelSelector({brand}) {
     } else {
         if (!isModelSelected) {
             return (
-                <div className={"Model Selector"}>
-                    <p>
-                        Base Model SKU:
-                    </p>
+                <div className={"Model-Dropdown"}>
+                    <span>
+                        Base Model Code (SKU): &nbsp;
+                    </span>
                     <Dropdown
                         value={selectedModel}
                         onChange={(val) => {
-                            if (val.value != '') {
+                            if (val.value !== 'Select...') {
                                 setSelectedModel(val.value);
                                 setModelSelected(true);
+                            } else {
+                                setSelectedModel('Select...');
                             }
                         }}
                         options={modelList}
                     />
+                    <span>
+                        &nbsp; ({modelList.length - 1} results)
+                    </span>
                 </div>
             );
         } else {
             return (
-                <div className={"Model Selector"}>
-                    <p>
-                        Base Model SKU:
-                    </p>
-                    <Dropdown
-                        value={selectedModel}
-                        onChange={(val) => {
-                            if (val.value != '') {
-                                setSelectedModel(val.value);
-                                setModelSelected(true);
-                            }
-                        }}
-                        options={modelList}
-                    />
+                <div className="Model-Selector">
+                    <div className="Model-Dropdown">
+                        <span>
+                            Base Model Code (SKU): &nbsp;
+                        </span>
+                        <Dropdown
+                            value={selectedModel}
+                            onChange={(val) => {
+                                if (val.value !== 'Select...') {
+                                    setSelectedModel(val.value);
+                                } else {
+                                    setSelectedModel('Select...');
+                                    setModelSelected(false);
+                                }
+                            }}
+                            options={modelList}
+                        />
+                        <span>
+                            &nbsp; ({modelList.length - 1} results)
+                        </span>
+                    </div>
                     <AttrSelector brand={brandName} baseModel={selectedModel}/>
                 </div>
             );
