@@ -83,7 +83,7 @@ export function AttrSelector({brand, baseModel}) {
                             options={possibleVals}
                         />
                         <span>
-                            &nbsp; ({possibleVals.length - 1} results)
+                            &nbsp; ({possibleVals.length - 1} options)
                         </span>
                     </div>
                 );

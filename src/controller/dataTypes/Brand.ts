@@ -24,11 +24,12 @@ export class Brand {
     public addProductObj(product: Product) {
         if (typeof(this.baseModelList[product.getModelSKU()]) === "undefined") {
             const newBaseModel = new BaseModel(this.brandCode, product.getColCode(),
-                product.getSubColCode(), product.getBaseModelCode(), product.getModelSKU());
-            newBaseModel.addProduct(product.getUuidCode(), product.getAttributes());
+                product.getSubColCode(), product.getModelSKU());
+            newBaseModel.addProduct(product.getBaseModelCode(), product.getUuidCode(), product.getAttributes());
             this.baseModelList[product.getModelSKU()] = newBaseModel;
         } else {
-            this.baseModelList[product.getModelSKU()].addProduct(product.getUuidCode(), product.getAttributes());
+            this.baseModelList[product.getModelSKU()].addProduct(product.getBaseModelCode(),
+                product.getUuidCode(), product.getAttributes());
         }
     }
 
@@ -39,11 +40,11 @@ export class Brand {
 
         if (typeof(this.baseModelList[baseModelSKU]) === "undefined") {
             const newBaseModel = new BaseModel(this.brandCode, colCode,
-                subColCode, baseModelCode, baseModelSKU);
-            newBaseModel.addProduct(uuidCode, attributes);
+                subColCode, baseModelSKU);
+            newBaseModel.addProduct(baseModelCode, uuidCode, attributes);
             this.baseModelList[baseModelSKU] = newBaseModel;
         } else {
-            this.baseModelList[baseModelSKU].addProduct(uuidCode, attributes);
+            this.baseModelList[baseModelSKU].addProduct(baseModelCode, uuidCode, attributes);
         }
     }
 

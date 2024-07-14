@@ -8,19 +8,16 @@ export class BaseModel {
     private brandCode: string;
     private colCode: string;
     private subColCode: string; // empty string if part of no subcollection.
-    private baseModelCode: string;
     private baseModelSKU: string;
 
     private productList: Product[];
     private attributeList: Attribute[]; // attributes every associated product contains
     private AttrValues: AttributeValueTable; // Lists all attribute values that appear across productList.
 
-    constructor(brandCode: string, colCode: string, subColCode: string, baseModelCode: string,
-                baseModelSKU: string) {
+    constructor(brandCode: string, colCode: string, subColCode: string, baseModelSKU: string) {
         this.brandCode = brandCode;
         this.colCode = colCode;
         this.subColCode = subColCode;
-        this.baseModelCode = baseModelCode;
         this.baseModelSKU = baseModelSKU;
         this.productList = [];
         this.attributeList = [];
@@ -29,7 +26,7 @@ export class BaseModel {
 
     // Add a new product, knowing its brand and base model. Update attrValues if any new attribute values are
     // encountered. Add any new attributes to attributeList and attrValues.
-    public addProduct(uuid: string, attributes: AttributePairs) {
+    public addProduct(baseModelCode: string, uuid: string, attributes: AttributePairs) {
         Object.entries(attributes).forEach(([attr, value]) => {
             if (!this.attributeList.includes(attr as Attribute)) {
                 this.attributeList.push(attr as Attribute);
@@ -45,7 +42,7 @@ export class BaseModel {
             }
         });
 
-        this.productList.push(new Product(this.brandCode, this.colCode, this.subColCode, this.baseModelCode,
+        this.productList.push(new Product(this.brandCode, this.colCode, this.subColCode, baseModelCode,
             this.baseModelSKU, uuid, attributes));
     }
 
@@ -59,10 +56,6 @@ export class BaseModel {
 
     public getSubColCode(): string {
         return this.subColCode;
-    }
-
-    public getBaseModelCode(): string {
-        return this.baseModelCode;
     }
 
     public getSKU(): string {

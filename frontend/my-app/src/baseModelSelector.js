@@ -71,7 +71,7 @@ export function BaseModelSelector({brand}) {
                         options={modelList}
                     />
                     <span>
-                        &nbsp; ({modelList.length - 1} results)
+                        &nbsp; ({modelList.length - 1} options)
                     </span>
                 </div>
             );
@@ -95,7 +95,7 @@ export function BaseModelSelector({brand}) {
                             options={modelList}
                         />
                         <span>
-                            &nbsp; ({modelList.length - 1} results)
+                            &nbsp; ({modelList.length - 1} options)
                         </span>
                     </div>
                     <AttrSelector brand={brandName} baseModel={selectedModel}/>

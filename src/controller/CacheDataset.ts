@@ -19,11 +19,12 @@ export async function loadJsonPersistFile(name: string): Promise<{[key: string]:
         ret[brName] = new Brand(brName);
         Object.keys(data[brName]["baseModelList"]).forEach(bmSKU => {
             let curModel: any = data[brName]["baseModelList"][bmSKU];
-            let model: BaseModel = new BaseModel(brName, String(curModel["colCode"]), String(curModel["subColCode"]),
-                String(curModel["baseModelCode"]), bmSKU);
+            let model: BaseModel = new BaseModel(brName, String(curModel["colCode"]),
+                String(curModel["subColCode"]), bmSKU);
 
             for (const product of curModel["productList"]) {
-                model.addProduct(String(product["uuidCode"]), product["attributes"] as AttributePairs);
+                model.addProduct(String(product["baseModelCode"]), String(product["uuidCode"]),
+                    product["attributes"] as AttributePairs);
             }
             ret[brName].addBaseModel(model);
         });

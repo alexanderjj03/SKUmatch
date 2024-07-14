@@ -6,7 +6,7 @@ export enum Attribute {
     ColorCS = "COLOR OF CS",
     SizeCS = "SIZE CS (CT)", // number
     QualityCS = "QUALITY CS",
-    Size = "SIZE", // number (expressed in cm). If no unit is present, assumed to be in cm if it's < 30 (mm otherwise).
+    Size = "SIZE",
     TextileColor = "TEXTILE COLOR",
     GlassColor = "GLASS COLOR",
 }
