@@ -11,11 +11,10 @@ const localHost = "http://localhost:3500";
 export function AttrSelector({brand, baseModel}) {
     const [getAttrsUrl, setAttrsUrl] = useState(localHost
         + `/data/`);
-    const [brandName, setBrandName] = useState(brand);
-    const [bModel, setBModel] = useState(baseModel);
     const [attrsLoaded, setAttrsLoaded] = useState(false);
     const [possibleAttrs, setPossibleAttrs] = useState({});
     const [queryRan, setQueryRan] = useState(false);
+    const [errMessage, setMessage] = useState("");
     const [query, setQuery] = useState({"brandCode": brand,
         "baseModelSKU": baseModel, "attributes": {}});
 
@@ -25,6 +24,13 @@ export function AttrSelector({brand, baseModel}) {
         "SIZE CS (CT)": "Central Stone size (Ct)", "QUALITY CS": "Central Stone quality", "SIZE": "Size",
         "TEXTILE COLOR": "Textile color", "GLASS COLOR": "Glass color"
     };
+
+    const attrValMap = {
+        "GOLD(R)": "Gold (rose)", "GOLD(W)": "Gold (white)", "GOLD(Y)": "Gold (yellow)", "STEEL": "St. Steel",
+        "G SI": "G SI", "G VS": "G VS", "LB VS": "LB VS", "TW/VS": "TW/VS", "S": "S", "M": "M", "L": "L"
+    };
+    // Matching attribute values with how they are to be displayed (by default, de-capitalize the value,
+    // as most attribute values are expressed in all caps).
 
     const fetchAttrs = () => {
         setQuery({
@@ -40,11 +46,15 @@ export function AttrSelector({brand, baseModel}) {
                 setPossibleAttrs(data.result);
                 setAttrsLoaded(true);
             })
-            .catch(err => console.log(err))
+            .catch(err => {
+                setMessage(err);
+            })
     }
 
     useEffect(() => {
-        fetchAttrs();
+        if (baseModel !== 'Select...') {
+            fetchAttrs();
+        }
     }, [baseModel]);
 
     useEffect(() => {
@@ -53,13 +63,21 @@ export function AttrSelector({brand, baseModel}) {
 
     const displayAttrDropdowns = () => {
         let dropdownArr = [];
-        let possibleVals = [];
         for (const [attr, value] of Object.entries(possibleAttrs)) {
+            let possibleVals = [[], []];
             if (typeof(attrToDesc[attr] !== "undefined")) {
-                possibleVals = ['Select...'];
+                possibleVals[0] = ['Select...']; // raw values
+                possibleVals[1] = ['Select...']; // displayed values
                 if (Array.isArray(value)) {
                     for (const entry of value) {
-                        possibleVals.push(entry);
+                        possibleVals[0].push(entry);
+                        if (typeof(attrValMap[entry]) !== "undefined") {
+                            possibleVals[1].push(attrValMap[entry]);
+                        } else if (typeof(entry) === "number") {
+                            possibleVals[1].push(entry);
+                        } else {
+                            possibleVals[1].push(entry.substring(0, 1) + entry.substring(1).toLowerCase());
+                        }
                     }
                 }
 
@@ -73,17 +91,18 @@ export function AttrSelector({brand, baseModel}) {
                             onChange={(val) => {
                                 setQueryRan(false);
                                 let curQuery = query;
-                                if (val.value !== 'Select...') {
-                                    curQuery["attributes"][attr] = val.value;
-                                } else if (typeof query["attributes"][attr] !== "undefined") {
+                                if ((val.value !== 'Select...') && (possibleVals[1].indexOf(val.value) !== -1)) {
+                                    curQuery["attributes"][attr] = possibleVals[0][possibleVals[1].indexOf(val.value)];
+                                } else if ((val.value === 'Select...')
+                                    && (typeof query["attributes"][attr] !== "undefined")) {
                                     delete curQuery["attributes"][attr];
                                 }
                                 setQuery(curQuery);
                             }}
-                            options={possibleVals}
+                            options={possibleVals[1]}
                         />
                         <span>
-                            &nbsp; ({possibleVals.length - 1} options)
+                            &nbsp; ({possibleVals[1].length - 1} options)
                         </span>
                     </div>
                 );
@@ -92,17 +111,32 @@ export function AttrSelector({brand, baseModel}) {
         return dropdownArr;
     }
 
-    if (!attrsLoaded) {
+    if (baseModel === "Select..."){
         return (
-            <div className={"Attribute-Selector"}>
-                <p>
-                    Attributes:
-                </p>
-                <p>
-                    Attribute list loading, please wait:
-                </p>
-            </div>
+            <div></div>
         );
+    } else if (!attrsLoaded) {
+        if (errMessage === "") {
+            return (
+                <div className={"Attribute-Selector"}>
+                    <p>
+                        Attribute list loading, please wait:
+                    </p>
+                </div>
+            );
+        } else {
+            return (
+                <div className={"Attribute-Selector"}>
+                    <p>
+                        Error: {errMessage}
+                    </p>
+                    <p>
+                        Please try selecting a different base model then yours again (or refreshing the page).
+                        If issues persist, please reach out to [placeholder]
+                    </p>
+                </div>
+            );
+        }
     } else {
         if (!queryRan) {
             return (

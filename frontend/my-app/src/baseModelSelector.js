@@ -14,10 +14,11 @@ export function BaseModelSelector({brand}) {
     const [modelListLoaded, setModelListLoaded] = useState(false);
     const [modelList, setModelList] = useState(['']);
     const [isModelSelected, setModelSelected] = useState(false);
-    const [selectedModel, setSelectedModel] = useState('');
+    const [selectedModel, setSelectedModel] = useState('Select...');
+    const [errMessage, setMessage] = useState("");
 
     const fetchModels = () => {
-        setSelectedModel('');
+        setSelectedModel('Select...');
         setModelSelected(false);
         setModelListLoaded(false);
         return fetch(getModelsUrl + brand)
@@ -30,7 +31,9 @@ export function BaseModelSelector({brand}) {
                 setModelList(dispList);
                 setModelListLoaded(true);
             })
-            .catch(err => console.log(err))
+            .catch(err => {
+                setMessage(err);
+            })
     }
 
     useEffect(() => {
@@ -40,21 +43,36 @@ export function BaseModelSelector({brand}) {
         }
     }, [brand]);
 
-    if (!modelListLoaded) {
+    if (brand === "Select..."){
         return (
-            <div className={"Model-Selector"}>
-                <p>
-                    Base Model Code (SKU):
-                </p>
-                <p>
-                    Base model list loading, please wait:
-                </p>
-            </div>
+            <div></div>
         );
-    } else {
-        if (!isModelSelected) {
+    } else if (!modelListLoaded) {
+        if (errMessage === "") {
             return (
-                <div className={"Model-Dropdown"}>
+                <div className={"Model-Selector"}>
+                    <p>
+                        Base model list loading, please wait:
+                    </p>
+                </div>
+            );
+        } else {
+            return (
+                <div className={"Model-Selector"}>
+                    <p>
+                        Error: {errMessage}
+                    </p>
+                    <p>
+                        Please try selecting a different brand then yours again (or refreshing the page).
+                        If issues persist, please reach out to [placeholder]
+                    </p>
+                </div>
+            );
+        }
+    } else {
+        return (
+            <div className="Model-Selector">
+                <div className="Model-Dropdown">
                     <span>
                         Base Model Code (SKU): &nbsp;
                     </span>
@@ -66,6 +84,7 @@ export function BaseModelSelector({brand}) {
                                 setModelSelected(true);
                             } else {
                                 setSelectedModel('Select...');
+                                setModelSelected(false);
                             }
                         }}
                         options={modelList}
@@ -74,33 +93,8 @@ export function BaseModelSelector({brand}) {
                         &nbsp; ({modelList.length - 1} options)
                     </span>
                 </div>
-            );
-        } else {
-            return (
-                <div className="Model-Selector">
-                    <div className="Model-Dropdown">
-                        <span>
-                            Base Model Code (SKU): &nbsp;
-                        </span>
-                        <Dropdown
-                            value={selectedModel}
-                            onChange={(val) => {
-                                if (val.value !== 'Select...') {
-                                    setSelectedModel(val.value);
-                                } else {
-                                    setSelectedModel('Select...');
-                                    setModelSelected(false);
-                                }
-                            }}
-                            options={modelList}
-                        />
-                        <span>
-                            &nbsp; ({modelList.length - 1} options)
-                        </span>
-                    </div>
-                    <AttrSelector brand={brandName} baseModel={selectedModel}/>
-                </div>
-            );
-        }
+                <AttrSelector brand={brandName} baseModel={selectedModel}/>
+            </div>
+        );
     }
 }

@@ -4,6 +4,7 @@ import Combobox from "react-widgets/Combobox";
 import Dropdown from 'react-dropdown'; // Source: https://www.npmjs.com/package/react-dropdown?activeTab=readme
 import 'react-dropdown/style.css';
 import './App.css';
+import {message} from "react-widgets/PropTypes";
 
 const localHost = "http://localhost:3500";
 
@@ -13,147 +14,142 @@ function App() {
   const [brandListLoaded, setBrandListLoaded] = useState(false);
   const [brandList, setBrandList] = useState(['']);
   const [dispListLoaded, setDispListLoaded] = useState(false);
-  const [displayList, setDisplayList] = useState(['']);
+  const [displayList, setDisplayList] = useState([[''], ['']]);
   const [rawSelect, setRawSelect] = useState('');
   const [enteredBrand, setEnteredBrand] = useState('');
-  const [selectedBrand, setSelectedBrand] = useState('');
+  const [selectedBrand, setSelectedBrand] = useState('Select...');
   const [isSelected, setSelected] = useState(false);
+  const [canFilterBrands, setCanFilterBrands] = useState(false);
+  const [errMessage, setMessage] = useState("");
 
   const fetchBrands = () => {
     return fetch(getBrandsUrl)
         .then((res) =>res.json())
         .then((data) => {
-          setBrandList(data.result.sort());
+          let sorted = data.result.sort();
+          setBrandList(sorted);
           setBrandListLoaded(true);
 
-          let dispList = ['Select...']; // blank option
-          for (const brand of data.result) {
-            dispList.push(brand.substring(0, 1) + brand.substring(1).toLowerCase());
-          }
-
-          setDisplayList(dispList);
-          setDispListLoaded(true);
+          filterBrandList(sorted, '');
         })
-        .catch(err => console.log(err))
+        .catch(err => {
+            setMessage(err);
+        })
   }
 
   useEffect(() => {
     fetchBrands();
   }, []);
 
-  useEffect(() => {
-      let options = brandList.filter((brand) =>
-          brand.startsWith(enteredBrand.toUpperCase())
-      );
+  const filterBrandList = (fullList, prefix) => {
+      let options = [];
+      if (prefix === '') {
+          options = fullList;
+      } else {
+          options = fullList.filter(brand => brand.toUpperCase().startsWith(prefix.toUpperCase()));
+      }
 
-      let dispList = ['Select...'];
+      let dispList = [['Select...'], ['Select...']];
       for (const brand of options) {
-          dispList.push(brand.substring(0, 1) + brand.substring(1).toLowerCase());
+          dispList[0].push(brand); // real brand name (usually all caps)
+          dispList[1].push(brand.substring(0, 1) + brand.substring(1).toLowerCase()); // Displayed brand name
       }
       setDisplayList(dispList);
-  }, [enteredBrand])
+      setDispListLoaded(true);
+      setCanFilterBrands(false);
+  }
 
   if (!dispListLoaded) {
-    return (
-        <div className="App">
-          <header className="App-header">
-            <p>
-              Data loading, please wait:
-            </p>
-          </header>
-        </div>
-    );
-  } else {
-    if (!isSelected) {
-      return (
-          <div className="App">
-              <header className="App-header">
-                  <h1>Get your Product's Code using its Attributes</h1>
-                  <div className="Brand-Selector">
-                      Brand Name: &nbsp;
-                      <textarea
-                          placeholder="Start typing your product's brand name, then select an option
-                          from the dropdown"
-                          value={enteredBrand}
-                          rows={3}
-                          cols={30}
-                          onChange={e => {
-                              setEnteredBrand(e.target.value.trim());
-                          }}
-                      />
-                      &nbsp;
-                      <Dropdown
-                          value={rawSelect}
-                          onChange={val => {
-                              setRawSelect(val.value);
-                              if (val.value !== 'Select...') {
-                                  const realBrand = val.value.toUpperCase();
-                                  setSelected(true);
-                                  setSelectedBrand(realBrand);
-                              } else {
-                                  setSelectedBrand('Select...');
-                              }
-                          }}
-                          options={displayList}
-                      />
-                      <span>
-                          &nbsp; ({displayList.length - 1} options)
-                      </span>
-                  </div>
-              </header>
-          </div>
-      );
+    if (errMessage === "") {
+        return (
+            <div className="App">
+                <header className="App-header">
+                    <h1>Get your Product's Code using its Attributes</h1>
+                    <p>
+                        Data loading, please wait:
+                    </p>
+                </header>
+            </div>
+        );
     } else {
         return (
             <div className="App">
                 <header className="App-header">
                     <h1>Get your Product's Code using its Attributes</h1>
                     <p>
-                        <button onClick={() => {
-                            setSelectedBrand('Select...')
-                            setRawSelect('Select...');
-                            setEnteredBrand('');
-                            setSelected(false);
-                        }}>
-                            Clear all entries
-                        </button>
+                        Error: {errMessage}
                     </p>
-                    <div className="Brand-Selector">
-                        Brand Name: &nbsp;
-                        <textarea
-                            placeholder="Start typing your product's brand name, then select an option
-                            from the dropdown"
-                            value={enteredBrand}
-                            rows={3}
-                            cols={30}
-                            onChange={e => {
-                                setEnteredBrand(e.target.value.trim());
-                            }}
-                        />
-                        &nbsp;
-                        <Dropdown
-                            value={rawSelect}
-                            onChange={val => {
-                                setRawSelect(val.value);
-                                if (val.value !== 'Select...') {
-                                    const realBrand = val.value.toUpperCase();
-                                    setSelected(true);
-                                    setSelectedBrand(realBrand);
-                                } else {
-                                    setSelectedBrand('Select...');
-                                }
-                            }}
-                            options={displayList}
-                        />
-                        <span>
-                            &nbsp; ({displayList.length - 1} options)
-                        </span>
-                    </div>
-                    <BaseModelSelector brand={selectedBrand}/>
+                    <p>
+                        Please refresh the page. If issues persist, please reach out to [placeholder]
+                    </p>
                 </header>
             </div>
         );
     }
+  } else {
+      return (
+          <div className="App">
+              <header className="App-header">
+              <h1>Get your Product's Code using its Attributes</h1>
+                  <p>
+                      <button disabled={!isSelected}
+                              onClick={() => {
+                                  setSelectedBrand('Select...')
+                                  setRawSelect('Select...');
+                                  setEnteredBrand('');
+                                  setSelected(false);
+                                  filterBrandList(brandList, '');
+                              }}>
+                          Clear all entries
+                      </button>
+                  </p>
+                  <div className="Brand-Selector">
+                      Brand Name: &nbsp;
+                      <textarea
+                          placeholder="Type some (or all) of your product's brand, click the button, then select
+                            an option from the dropdown"
+                          value={enteredBrand}
+                          rows={3}
+                          cols={35}
+                          onChange={e => {
+                              setCanFilterBrands(true);
+                              setEnteredBrand(e.target.value.trim());
+                          }}
+                      />
+                      &nbsp;
+                      <p>
+                          <button
+                              disabled={!canFilterBrands}
+                              onClick={() => {
+                                  filterBrandList(brandList, enteredBrand);
+                              }}>
+                              Search
+                          </button>
+                      </p>
+                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                      <Dropdown
+                          value={rawSelect}
+                          onChange={val => {
+                              setRawSelect(val.value);
+                              if ((val.value !== 'Select...') && displayList[1].indexOf(val.value) !== -1) {
+                                  const realBrand = displayList[0][displayList[1].indexOf(val.value)];
+                                  setSelectedBrand(realBrand);
+                                  setSelected(true);
+                              } else if (val.value === 'Select...') {
+                                  setSelectedBrand('Select...');
+                                  setSelected(false);
+                              }
+                          }}
+                          options={displayList[1]}
+                      />
+                      <span>
+                            &nbsp; ({displayList[1].length - 1} options)
+                      </span>
+                  </div>
+                  <BaseModelSelector brand={selectedBrand}/>
+              </header>
+          </div>
+      );
   }
 }
 
