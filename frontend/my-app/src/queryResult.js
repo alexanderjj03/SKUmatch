@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from "react";
-
-const localHost = "http://localhost:3500";
+import {localHost} from "./App";
 
 // Runs the user's query and displays its result
 export function QueryResult({query}) {
@@ -61,7 +60,17 @@ export function QueryResult({query}) {
         return (
             <div className="Query-Result">
                 <p>
-                    Product code: {result}
+                    Manufacturer Reference No: {query["baseModelSKU"]}
+                </p>
+                <p>
+                    Product Code: {result}
+                </p>
+                <p>
+                    <button onClick={() => {
+                        navigator.clipboard.writeText(result)
+                    }}>
+                        Copy product code
+                    </button>
                 </p>
             </div>
         );

@@ -3,8 +3,8 @@ import Dropdown from 'react-dropdown'; // Source: https://www.npmjs.com/package/
 import 'react-dropdown/style.css';
 import {AttrSelector} from "./attrSelector";
 import './baseModelSelector.css';
+import {localHost} from "./App";
 
-const localHost = "http://localhost:3500";
 
 // Allows the user to select the brand's base model via a dropdown menu.
 export function BaseModelSelector({brand}) {
@@ -74,7 +74,7 @@ export function BaseModelSelector({brand}) {
             <div className="Model-Selector">
                 <div className="Model-Dropdown">
                     <span>
-                        Base Model Code (SKU): &nbsp;
+                        Manufacturer Reference No.: &nbsp;
                     </span>
                     <Dropdown
                         value={selectedModel}

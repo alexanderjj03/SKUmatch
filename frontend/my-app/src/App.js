@@ -1,12 +1,10 @@
 import React, {useEffect, useState} from 'react';
 import {BaseModelSelector} from "./baseModelSelector";
-import Combobox from "react-widgets/Combobox";
 import Dropdown from 'react-dropdown'; // Source: https://www.npmjs.com/package/react-dropdown?activeTab=readme
 import 'react-dropdown/style.css';
 import './App.css';
-import {message} from "react-widgets/PropTypes";
 
-const localHost = "http://localhost:3500";
+export const localHost = "http://localhost:3500";
 
 // Sets up the entire app, provides the user the first dropdown menu to select the product's brand name.
 function App() {
@@ -106,27 +104,17 @@ function App() {
                   <div className="Brand-Selector">
                       Brand Name: &nbsp;
                       <textarea
-                          placeholder="Type some (or all) of your product's brand, click the button, then select
+                          placeholder="Start typing your product's brand, then select
                             an option from the dropdown"
                           value={enteredBrand}
                           rows={3}
                           cols={35}
                           onChange={e => {
-                              setCanFilterBrands(true);
                               setEnteredBrand(e.target.value.trim());
+                              filterBrandList(brandList, e.target.value.trim());
                           }}
                       />
-                      &nbsp;
-                      <p>
-                          <button
-                              disabled={!canFilterBrands}
-                              onClick={() => {
-                                  filterBrandList(brandList, enteredBrand);
-                              }}>
-                              Search
-                          </button>
-                      </p>
-                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                       <Dropdown
                           value={rawSelect}
                           onChange={val => {

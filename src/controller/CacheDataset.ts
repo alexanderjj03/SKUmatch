@@ -6,6 +6,7 @@ import {externalDir} from "./loadExcelData";
 import Base = Mocha.reporters.Base;
 import {BaseModel} from "./dataTypes/BaseModel";
 import {AttributePairs} from "./dataTypes/Attribute";
+import {sendEmail} from "./NotifyDevs";
 
 export const persistDir = "./persistedData";
 export const failedQueryDir = "./failedQueries";
@@ -64,6 +65,7 @@ export async function persistData(name: string, data: {[key: string]: Brand}): P
 
 // Persists "failed queries" (queries that result in multiple return values despite filtering via all the base model's
 // attributes. Ideally, this function should never be called. But if it is, the developers can know what went wrong.
+// Also sends an email to the developers (CHANGE EMAILS LATER)
 export async function persistFailedQuery(query: any, result: string[]): Promise<void> {
     if (!fs.existsSync(failedQueryDir)) {
         fs.mkdirSync(failedQueryDir);
@@ -93,6 +95,8 @@ export async function persistFailedQuery(query: any, result: string[]): Promise<
 
         const file = require("../." + failedQueryDir + "/" + name + ".json");
     })();
+
+    await sendEmail(query, result, name);
 
     return Promise.resolve();
 }

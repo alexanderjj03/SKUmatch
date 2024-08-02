@@ -208,7 +208,7 @@ describe("ProductFilter", function () {
             filter = new ProductFilter();
             await filter.loadSaveAllData();
             filter.getLoadedData()["CARTIER"].getModelList()["CRB4084600"].addProduct("CAR-00001",
-                "CAR-00003-8", {"MATERIAL": "GOLD(Y)", "SIZE": "16"});
+                "CAR-00003-9", {"MATERIAL": "GOLD(Y)", "SIZE": "16"});
             // Add a duplicate product (for later testing)
         });
 
