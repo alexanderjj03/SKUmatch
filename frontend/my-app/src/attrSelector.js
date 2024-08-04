@@ -21,8 +21,7 @@ export const attrValMap = {
 
 // Allows the user to select which attributes their product contains
 export function AttrSelector({brand, baseModel}) {
-    const [getAttrsUrl, setAttrsUrl] = useState(localHost
-        + `/data/`);
+    const [getAttrsUrl] = useState(localHost + `/data/`);
     const [attrsLoaded, setAttrsLoaded] = useState(false);
     const [possibleAttrs, setPossibleAttrs] = useState({});
     const [queryRan, setQueryRan] = useState(false);
@@ -30,33 +29,35 @@ export function AttrSelector({brand, baseModel}) {
     const [query, setQuery] = useState({"brandCode": brand,
         "baseModelSKU": baseModel, "attributes": {}});
 
-    const fetchAttrs = () => {
-        setQuery({
-            "brandCode": brand,
-            "baseModelSKU": baseModel,
-            "attributes": {}
-        });
-        setQueryRan(false);
-        setAttrsLoaded(false);
-        return fetch(getAttrsUrl + brand + '/' + baseModel)
-            .then((res) => res.json())
-            .then((data) => {
-                setPossibleAttrs(data.result);
-                setAttrsLoaded(true);
-            })
-            .catch(err => {
-                setMessage(err);
-            })
-    }
-
     useEffect(() => {
+        const fetchAttrs = () => {
+            setQuery({
+                "brandCode": brand,
+                "baseModelSKU": baseModel,
+                "attributes": {}
+            });
+            setQueryRan(false);
+            setAttrsLoaded(false);
+            return fetch(getAttrsUrl + brand + '/' + baseModel)
+                .then((res) => res.json())
+                .then((data) => {
+                    setPossibleAttrs(data.result);
+                    setAttrsLoaded(true);
+                })
+                .catch(err => {
+                    setMessage(err);
+                })
+        }
+
         if (baseModel !== 'Select an option...') {
             fetchAttrs();
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [baseModel]);
 
     useEffect(() => {
         setAttrsLoaded(false);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [brand]);
 
     const displayAttrDropdowns = () => {

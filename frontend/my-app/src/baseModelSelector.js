@@ -7,44 +7,40 @@ import {localHost} from "./App";
 
 // Allows the user to select the brand's base model via a dropdown menu.
 export function BaseModelSelector({brand}) {
-    const [getModelsUrl, setModelsUrl] = useState(localHost + `/data/`);
+    const [getModelsUrl] = useState(localHost + `/data/`);
     const [brandName, setBrandName] = useState(brand);
-    const [modelListLoaded, setModelListLoaded] = useState(false);
     const [modelList, setModelList] = useState(['']);
     const [dispListLoaded, setDispListLoaded] = useState(false);
     const [dispList, setDispList] = useState(['']);
-    const [isModelSelected, setModelSelected] = useState(false);
     const [enteredModel, setEnteredModel] = useState('');
     const [selectedModel, setSelectedModel] = useState('Select an option...');
     const [errMessage, setMessage] = useState("");
 
-    const fetchModels = () => {
-        setSelectedModel('Select an option...');
-        setModelSelected(false);
-        setModelListLoaded(false);
-        return fetch(getModelsUrl + brand)
-            .then((res) =>res.json())
-            .then((data) => {
-                let modelsList = [];
-                for (const model of data.result) {
-                    modelsList.push(model);
-                }
-                setModelList(modelsList);
-                setModelListLoaded(true);
-
-                filterModelList(modelsList, '');
-            })
-            .catch(err => {
-                setMessage(err);
-            })
-    }
-
     useEffect(() => {
+        const fetchModels = () => {
+            setSelectedModel('Select an option...');
+            return fetch(getModelsUrl + brand)
+                .then((res) =>res.json())
+                .then((data) => {
+                    let modelsList = [];
+                    for (const model of data.result) {
+                        modelsList.push(model);
+                    }
+                    setModelList(modelsList);
+
+                    filterModelList(modelsList, '');
+                })
+                .catch(err => {
+                    setMessage(err);
+                })
+        }
+
         if (brand !== 'Select an option...') {
             setBrandName(brand);
             setEnteredModel('');
             fetchModels();
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [brand]);
 
     const filterModelList = (fullList, prefix) => {
@@ -109,10 +105,8 @@ export function BaseModelSelector({brand}) {
                         onChange={(val) => {
                             if (val.value !== 'Select an option...') {
                                 setSelectedModel(val.value);
-                                setModelSelected(true);
                             } else {
                                 setSelectedModel('Select an option...');
-                                setModelSelected(false);
                             }
                         }}
                         options={dispList}

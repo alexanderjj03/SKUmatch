@@ -6,37 +6,38 @@ import {localHost} from "./App";
 
 // Shows the user the corresponding product, given its manufacturer reference number
 export function ManuRefResult({brand, manuRef}) {
-    const [getProdUrl, setProdUrl] = useState(localHost + `/manuRef/`);
+    const [getProdUrl] = useState(localHost + `/manuRef/`);
     const [isResult, setIsResult] = useState(false);
     const [isError, setIsError] = useState(false);
     const [errMessage, setErrMessage] = useState('');
     const [result, setResult] = useState({});
 
-    const fetchProduct = () => {
-        setIsError(false);
-        setIsResult(false);
-        return fetch(getProdUrl + brand + "/" + manuRef)
-            .then((res) =>res.json())
-            .then((data) => {
-                setIsResult(true);
-                if (data.error) {
-                    setIsError(true);
-                    setErrMessage(data.error);
-                } else if (data.result) {
-                    setResult(data.result);
-                }
-            })
-            .catch(err => {
-                setIsResult(true);
-                setIsError(true);
-                setErrMessage(err);
-            })
-    }
-
     useEffect(() => {
+        const fetchProduct = () => {
+            setIsError(false);
+            setIsResult(false);
+            return fetch(getProdUrl + brand + "/" + manuRef)
+                .then((res) =>res.json())
+                .then((data) => {
+                    setIsResult(true);
+                    if (data.error) {
+                        setIsError(true);
+                        setErrMessage(data.error);
+                    } else if (data.result) {
+                        setResult(data.result);
+                    }
+                })
+                .catch(err => {
+                    setIsResult(true);
+                    setIsError(true);
+                    setErrMessage(err);
+                })
+        }
+
         if (manuRef !== 'Select an option...') {
             fetchProduct();
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [manuRef]);
 
     useEffect(() => {

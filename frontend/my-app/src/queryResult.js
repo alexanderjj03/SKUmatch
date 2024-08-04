@@ -8,36 +8,37 @@ export function QueryResult({query}) {
     const [errMessage, setErrMessage] = useState('');
     const [result, setResult] = useState('');
 
-    const fetchResult = () => {
-        setIsResult(false);
-        setIsError(false);
-        return fetch(localHost + "/query",
-            {
-                method: 'POST',
-                body: JSON.stringify(query),
-                headers: {
-                    'content-type':'application/json'
-                }
-            })
-            .then((res) =>res.json())
-            .then((data) => {
-                setIsResult(true);
-                if (data.error) {
-                    setIsError(true);
-                    setErrMessage(data.error);
-                } else if (data.result) {
-                    setResult(data.result);
-                }
-            })
-            .catch(err => {
-                setIsResult(true);
-                setIsError(true);
-                setErrMessage(err);
-            })
-    }
-
     useEffect(() => {
+        const fetchResult = () => {
+            setIsResult(false);
+            setIsError(false);
+            return fetch(localHost + "/query",
+                {
+                    method: 'POST',
+                    body: JSON.stringify(query),
+                    headers: {
+                        'content-type':'application/json'
+                    }
+                })
+                .then((res) =>res.json())
+                .then((data) => {
+                    setIsResult(true);
+                    if (data.error) {
+                        setIsError(true);
+                        setErrMessage(data.error);
+                    } else if (data.result) {
+                        setResult(data.result);
+                    }
+                })
+                .catch(err => {
+                    setIsResult(true);
+                    setIsError(true);
+                    setErrMessage(err);
+                })
+        }
+
         fetchResult();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     },[])
 
     if (!isResult) {

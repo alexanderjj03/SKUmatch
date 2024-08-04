@@ -1,5 +1,4 @@
 import React, {useEffect, useState} from 'react';
-import {BaseModelSelector} from "./baseModelSelector";
 import Dropdown from 'react-dropdown'; // Source: https://www.npmjs.com/package/react-dropdown?activeTab=readme
 import 'react-dropdown/style.css';
 import './App.css';
@@ -9,8 +8,7 @@ export const localHost = "http://localhost:3500";
 
 // Sets up the entire app, provides the user the first dropdown menu to select the product's brand name.
 function App() {
-  const [getBrandsUrl, setBrandsUrl] = useState(localHost + "/data");
-  const [brandListLoaded, setBrandListLoaded] = useState(false);
+  const [getBrandsUrl] = useState(localHost + "/data");
   const [brandList, setBrandList] = useState(['']);
   const [dispListLoaded, setDispListLoaded] = useState(false);
   const [displayList, setDisplayList] = useState([[''], ['']]);
@@ -18,26 +16,25 @@ function App() {
   const [enteredBrand, setEnteredBrand] = useState('');
   const [selectedBrand, setSelectedBrand] = useState('Select an option...');
   const [isSelected, setSelected] = useState(false);
-  const [canFilterBrands, setCanFilterBrands] = useState(false);
   const [errMessage, setMessage] = useState("");
 
-  const fetchBrands = () => {
-    return fetch(getBrandsUrl)
-        .then((res) =>res.json())
-        .then((data) => {
-          let sorted = data.result.sort();
-          setBrandList(sorted);
-          setBrandListLoaded(true);
-
-          filterBrandList(sorted, '');
-        })
-        .catch(err => {
-            setMessage(err);
-        })
-  }
-
   useEffect(() => {
-    fetchBrands();
+      const fetchBrands = () => {
+          return fetch(getBrandsUrl)
+              .then((res) =>res.json())
+              .then((data) => {
+                  let sorted = data.result.sort();
+                  setBrandList(sorted);
+
+                  filterBrandList(sorted, '');
+              })
+              .catch(err => {
+                  setMessage(err);
+              })
+      }
+
+      fetchBrands();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const filterBrandList = (fullList, prefix) => {
@@ -55,7 +52,6 @@ function App() {
       }
       setDisplayList(dispList);
       setDispListLoaded(true);
-      setCanFilterBrands(false);
   }
 
   if (!dispListLoaded) {

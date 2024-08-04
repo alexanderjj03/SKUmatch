@@ -1,9 +1,6 @@
 import React, {useEffect, useState} from "react";
-import Dropdown from 'react-dropdown'; // Source: https://www.npmjs.com/package/react-dropdown?activeTab=readme
 import 'react-dropdown/style.css';
-import {AttrSelector} from "./attrSelector";
 import './baseModelSelector.css';
-import {localHost} from "./App";
 import {BaseModelSelector} from "./baseModelSelector";
 import {ManuRefSelector} from "./manuRefSelector";
 

@@ -7,44 +7,40 @@ import {ManuRefResult} from "./manuRefResult";
 
 // Allows the user to view all possible manufacturer reference numbers and select one to view its information.
 export function ManuRefSelector({brand}) {
-    const [getRefsUrl, setRefsUrl] = useState(localHost + `/manuRef/`);
+    const [getRefsUrl] = useState(localHost + `/manuRef/`);
     const [brandName, setBrandName] = useState(brand);
-    const [refListLoaded, setRefListLoaded] = useState(false);
     const [refList, setRefList] = useState(['']);
     const [dispListLoaded, setDispListLoaded] = useState(false);
     const [dispList, setDispList] = useState(['']);
-    const [isRefSelected, setRefSelected] = useState(false);
     const [enteredRef, setEnteredRef] = useState('');
     const [selectedRef, setSelectedRef] = useState('Select an option...');
     const [errMessage, setMessage] = useState("");
 
-    const fetchRefs = () => {
-        setSelectedRef('Select an option...');
-        setRefSelected(false);
-        setRefListLoaded(false);
-        return fetch(getRefsUrl + brand)
-            .then((res) =>res.json())
-            .then((data) => {
-                let refsList = [];
-                for (const ref of data.result) {
-                    refsList.push(ref);
-                }
-                setRefList(refsList);
-                setRefListLoaded(true);
-
-                filterRefList(refsList, '');
-            })
-            .catch(err => {
-                setMessage(err);
-            })
-    }
-
     useEffect(() => {
+        const fetchRefs = () => {
+            setSelectedRef('Select an option...');
+            return fetch(getRefsUrl + brand)
+                .then((res) =>res.json())
+                .then((data) => {
+                    let refsList = [];
+                    for (const ref of data.result) {
+                        refsList.push(ref);
+                    }
+                    setRefList(refsList);
+
+                    filterRefList(refsList, '');
+                })
+                .catch(err => {
+                    setMessage(err);
+                })
+        }
+
         if (brand !== 'Select an option...') {
             setBrandName(brand);
             setEnteredRef('');
             fetchRefs();
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [brand]);
 
     const filterRefList = (fullList, prefix) => {
@@ -109,10 +105,8 @@ export function ManuRefSelector({brand}) {
                         onChange={(val) => {
                             if (val.value !== 'Select an option...') {
                                 setSelectedRef(val.value);
-                                setRefSelected(true);
                             } else {
                                 setSelectedRef('Select an option...');
-                                setRefSelected(false);
                             }
                         }}
                         options={dispList}
