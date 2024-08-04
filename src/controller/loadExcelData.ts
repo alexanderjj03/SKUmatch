@@ -51,6 +51,7 @@ export function extractProduct(brandCode: string, data: any): Product {
     }
     let baseModelCode = String(data["Base Model Code"]).trim();
     let baseModelSKU = String(data["Base Model SKU"]).trim();
+    let referenceNo = String(data["Manufacturer Reference No."]).trim();
     let uuidCode = String(data["Code"]).trim();
 
     let attributes: AttributePairs = {};
@@ -74,5 +75,5 @@ export function extractProduct(brandCode: string, data: any): Product {
         curAttrNum += 1;
     }
 
-    return new Product(brandCode, colCode, subColCode, baseModelCode, baseModelSKU, uuidCode, attributes);
+    return new Product(brandCode, colCode, subColCode, baseModelCode, baseModelSKU, referenceNo, uuidCode, attributes);
 }

@@ -24,9 +24,7 @@ export async function sendEmail(query: any, result: string[], date: Date): Promi
             "</head>\n" +
             "<body>\n" +
             "  <h1>Notification of failed query</h1>\n" +
-            "  <p> Brand: " + query["brandCode"] + "</p>\n" +
-            "  <p> Base Model: " + query["baseModelSKU"] + "</p>\n" +
-            "  <p> Attributes: " + JSON.stringify(query["attributes"]) + "</p>\n" +
+            "  <p> Query: " + JSON.stringify(query) + "</p>\n" +
             "  <p> Result: " + result + "</p>\n" +
             "</body>\n" +
             "</html> ",

@@ -25,26 +25,27 @@ export class Brand {
         if (typeof(this.baseModelList[product.getModelSKU()]) === "undefined") {
             const newBaseModel = new BaseModel(this.brandCode, product.getColCode(),
                 product.getSubColCode(), product.getModelSKU());
-            newBaseModel.addProduct(product.getBaseModelCode(), product.getUuidCode(), product.getAttributes());
+            newBaseModel.addProduct(product.getBaseModelCode(), product.getReferenceNo(), product.getUuidCode(),
+                product.getAttributes());
             this.baseModelList[product.getModelSKU()] = newBaseModel;
         } else {
             this.baseModelList[product.getModelSKU()].addProduct(product.getBaseModelCode(),
-                product.getUuidCode(), product.getAttributes());
+                product.getReferenceNo(), product.getUuidCode(), product.getAttributes());
         }
     }
 
     // Add a new product, knowing only that it belongs to this brand. Provide the remaining data manually
     // (mainly used for testing)
     public addProduct(colCode: string, subColCode: string, baseModelCode: string, baseModelSKU: string,
-                      uuidCode: string, attributes: AttributePairs) {
+                      referenceNo: string, uuidCode: string, attributes: AttributePairs) {
 
         if (typeof(this.baseModelList[baseModelSKU]) === "undefined") {
             const newBaseModel = new BaseModel(this.brandCode, colCode,
                 subColCode, baseModelSKU);
-            newBaseModel.addProduct(baseModelCode, uuidCode, attributes);
+            newBaseModel.addProduct(baseModelCode, referenceNo, uuidCode, attributes);
             this.baseModelList[baseModelSKU] = newBaseModel;
         } else {
-            this.baseModelList[baseModelSKU].addProduct(baseModelCode, uuidCode, attributes);
+            this.baseModelList[baseModelSKU].addProduct(baseModelCode, referenceNo, uuidCode, attributes);
         }
     }
 

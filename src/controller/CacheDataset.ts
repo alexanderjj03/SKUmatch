@@ -24,8 +24,8 @@ export async function loadJsonPersistFile(name: string): Promise<{[key: string]:
                 String(curModel["subColCode"]), bmSKU);
 
             for (const product of curModel["productList"]) {
-                model.addProduct(String(product["baseModelCode"]), String(product["uuidCode"]),
-                    product["attributes"] as AttributePairs);
+                model.addProduct(String(product["baseModelCode"]), String(product["referenceNo"]),
+                    String(product["uuidCode"]), product["attributes"] as AttributePairs);
             }
             ret[brName].addBaseModel(model);
         });

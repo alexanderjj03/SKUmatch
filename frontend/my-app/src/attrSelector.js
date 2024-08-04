@@ -5,6 +5,20 @@ import './attrSelector.css';
 import {QueryResult} from "./queryResult";
 import {localHost} from "./App";
 
+export const attrToDesc = {
+    "MATERIAL": "Material", "TYPE OF CS": "Central Stone type",
+    "CUT OF CS": "Central Stone cut", "COLOR OF CS": "Central Stone color",
+    "SIZE CS (CT)": "Central Stone size (Ct)", "QUALITY CS": "Central Stone quality", "SIZE": "Size",
+    "TEXTILE COLOR": "Textile color", "GLASS COLOR": "Glass color"
+};
+
+export const attrValMap = {
+    "GOLD(R)": "Gold (rose)", "GOLD(W)": "Gold (white)", "GOLD(Y)": "Gold (yellow)", "STEEL": "St. Steel",
+    "G SI": "G SI", "G VS": "G VS", "LB VS": "LB VS", "TW/VS": "TW/VS", "S": "S", "M": "M", "L": "L"
+};
+// Matching attribute values with how they are to be displayed (by default, de-capitalize the value,
+// as most attribute values are expressed in all caps).
+
 // Allows the user to select which attributes their product contains
 export function AttrSelector({brand, baseModel}) {
     const [getAttrsUrl, setAttrsUrl] = useState(localHost
@@ -15,20 +29,6 @@ export function AttrSelector({brand, baseModel}) {
     const [errMessage, setMessage] = useState("");
     const [query, setQuery] = useState({"brandCode": brand,
         "baseModelSKU": baseModel, "attributes": {}});
-
-    const attrToDesc = {
-        "MATERIAL": "Material", "TYPE OF CS": "Central Stone type",
-        "CUT OF CS": "Central Stone cut", "COLOR OF CS": "Central Stone color",
-        "SIZE CS (CT)": "Central Stone size (Ct)", "QUALITY CS": "Central Stone quality", "SIZE": "Size",
-        "TEXTILE COLOR": "Textile color", "GLASS COLOR": "Glass color"
-    };
-
-    const attrValMap = {
-        "GOLD(R)": "Gold (rose)", "GOLD(W)": "Gold (white)", "GOLD(Y)": "Gold (yellow)", "STEEL": "St. Steel",
-        "G SI": "G SI", "G VS": "G VS", "LB VS": "LB VS", "TW/VS": "TW/VS", "S": "S", "M": "M", "L": "L"
-    };
-    // Matching attribute values with how they are to be displayed (by default, de-capitalize the value,
-    // as most attribute values are expressed in all caps).
 
     const fetchAttrs = () => {
         setQuery({
@@ -50,7 +50,7 @@ export function AttrSelector({brand, baseModel}) {
     }
 
     useEffect(() => {
-        if (baseModel !== 'Select...') {
+        if (baseModel !== 'Select an option...') {
             fetchAttrs();
         }
     }, [baseModel]);
@@ -64,8 +64,8 @@ export function AttrSelector({brand, baseModel}) {
         for (const [attr, value] of Object.entries(possibleAttrs)) {
             let possibleVals = [[], []];
             if (typeof(attrToDesc[attr] !== "undefined")) {
-                possibleVals[0] = ['Select...']; // raw values
-                possibleVals[1] = ['Select...']; // displayed values
+                possibleVals[0] = ['Select an option...']; // raw values
+                possibleVals[1] = ['Select an option...']; // displayed values
                 if (Array.isArray(value)) {
                     for (const entry of value) {
                         possibleVals[0].push(entry);
@@ -85,13 +85,14 @@ export function AttrSelector({brand, baseModel}) {
                             {attrToDesc[attr]}: &nbsp;
                         </span>
                         <Dropdown
+                            placeholder='Select an option...'
                             value=''
                             onChange={(val) => {
                                 setQueryRan(false);
                                 let curQuery = query;
-                                if ((val.value !== 'Select...') && (possibleVals[1].indexOf(val.value) !== -1)) {
+                                if ((val.value !== 'Select an option...') && (possibleVals[1].indexOf(val.value) !== -1)) {
                                     curQuery["attributes"][attr] = possibleVals[0][possibleVals[1].indexOf(val.value)];
-                                } else if ((val.value === 'Select...')
+                                } else if ((val.value === 'Select an option...')
                                     && (typeof query["attributes"][attr] !== "undefined")) {
                                     delete curQuery["attributes"][attr];
                                 }
@@ -109,7 +110,7 @@ export function AttrSelector({brand, baseModel}) {
         return dropdownArr;
     }
 
-    if (baseModel === "Select..."){
+    if (baseModel === "Select an option..."){
         return (
             <div></div>
         );

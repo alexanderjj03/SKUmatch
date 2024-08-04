@@ -135,7 +135,7 @@ export default class ProductFilter {
     (so long as the base model contains every referenced attribute).
     Must follow the format provided in ProductFilter.spec.ts (line 192).
     */
-    public async performQuery(query: any): Promise<string> {
+    public async performQuery(query: any): Promise<Product> {
         await this.loadSaveAllData(); // Ensure all data are loaded and saved to the disk first.
         let modelToSearch: BaseModel;
         let ret: Product[] = [];
@@ -178,7 +178,7 @@ export default class ProductFilter {
                 "attribute values are entered correctly"));
         }
 
-        return Promise.resolve(retUUIDs[0]); // There should only be one return value.
+        return Promise.resolve(ret[0]); // There should only be one return value.
     }
 
     // Validation function to catch any faulty attribute-value(s) pairs in query[attributes].
@@ -211,6 +211,41 @@ export default class ProductFilter {
         }
 
         return Object.keys(counts);
+    }
+
+    // Finds a product object based on its corresponding brand and manufacturer reference number
+    public async getProdFromRef(brand: string, manuRef: string): Promise<Product> {
+        await this.loadSaveAllData(); // Ensure all data are loaded and saved to the disk first.
+        let brandToSearch: Brand;
+        let ret: Product[] = [];
+
+        try {
+            brandToSearch = this.loadedData[brand];
+            Object.values(brandToSearch.getModelList()).forEach((model: BaseModel) => {
+                for (const product of model.getProductList()) {
+                    if (product.getReferenceNo().toUpperCase() === manuRef.toUpperCase()) {
+                        ret.push(product);
+                    }
+                }
+            });
+        } catch (err: any) {
+            return Promise.reject(new FilterError(err.message));
+        }
+
+        let retRefs = ret.map((value) => value.getReferenceNo());
+
+        if (ret.length >= 2) {
+            await persistFailedQuery({"Brand": brand, "Manufacturer Reference No.": manuRef}, retRefs);
+            // This is of interest to the developers for bug fixing purposes.
+            return Promise.reject(new DatabaseError("Multiple matching products found: " + retRefs + ". " +
+                "Your query and its result have been sent to our developers for review. " +
+                "Apologies for the inconvenience"));
+        } else if (ret.length === 0) {
+            return Promise.reject(new NoResultsError("No results found. Please ensure all " +
+                "attribute values are entered correctly"));
+        }
+
+        return Promise.resolve(ret[0]); // There should only be one return value.
     }
 
     // Remove any data persistence file (by name) from the persistedData directory.

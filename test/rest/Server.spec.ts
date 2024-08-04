@@ -29,8 +29,8 @@ describe("REST server tests", function () {
             .get("/data")
             .then(function (res: Response) {
                 expect(res.body.result).to.have.deep.members(["CAPOLAVORO", "CARTIER", "POMELLATO",
-                    "SCHAFFRATH", "SCHMUCKWERK", "ROLEX"]);
-                expect(res.body.result.length).to.deep.equal(6);
+                    "SCHAFFRATH", "SCHMUCKWERK"]);
+                expect(res.body.result.length).to.deep.equal(5);
                 expect(res.status).to.be.equal(200);
             })
             .catch(function (err) {
@@ -43,7 +43,30 @@ describe("REST server tests", function () {
         return request(localHost)
             .get("/data/CARTIER")
             .then(function (res: Response) {
-                expect(res.body.result).to.have.deep.members(["CRB4084600"]);
+                expect(res.body.result).to.have.deep.members(['CRB4084600TEST01',
+                    'CRB4084600TEST02',
+                    'CRB4084600TEST03',
+                    'CRB6047517TEST01',
+                    'CRB6047517TEST02',
+                    'CRB6047517TEST03',
+                    'CRB6047517TEST04']);
+                expect(res.status).to.be.equal(200);
+            })
+            .catch(function (err) {
+                console.log(err);
+                expect.fail();
+            });
+    });
+
+    it("GET Pomellato's manufacturer reference numbers", async function () {
+        return request(localHost)
+            .get("/manuRef/POMELLATO")
+            .then(function (res: Response) {
+                expect(res.body.result).to.have.deep.members([
+                    'PAC0100_O7BKR_SM000',
+                    'PAC0100_O7BRK_RU000',
+                    'PAC0100_O2WHR_DB000',
+                    'PAC0100_O2BWR_ZA000']);
                 expect(res.status).to.be.equal(200);
             })
             .catch(function (err) {
@@ -65,14 +88,14 @@ describe("REST server tests", function () {
             });
     });
 
-    it("GET base model CRB4084600's attribute value table", async function () {
+    it("GET base model CRB4084600TEST01's attribute value table", async function () {
         return request(localHost)
-            .get("/data/CARTIER/CRB4084600")
+            .get("/data/CARTIER/CRB4084600TEST01")
             .then(function (res: Response) {
-                expect(res.body.result[Attribute.Size]).to.have.deep.members(["15cm", "16", "17cm",
-                    "18cm", "19cm", "20cm", "44mm", "45mm", "46mm", "47mm", "48mm", "49mm", "50mm"]);
+                expect(res.body.result[Attribute.Size]).to.have.deep.members(["15cm", "16cm", "17cm",
+                    "18cm", "19cm", "20cm"]);
                 expect(res.body.result[Attribute.Material]).to.have.deep.members(
-                    ["GOLD(R)", "GOLD(Y)", "GOLD(W)", "PLATIN"]);
+                    ["GOLD(R)"]);
                 expect(res.status).to.be.equal(200);
             })
             .catch(function (err) {
@@ -81,9 +104,9 @@ describe("REST server tests", function () {
             });
     });
 
-    it("GET base model PBC3070's attribute value table", async function () {
+    it("GET base model PAC0100's attribute value table", async function () {
         return request(localHost)
-            .get("/data/POMELLATO/PBC3070")
+            .get("/data/POMELLATO/PAC0100")
             .then(function (res: Response) {
                 expect(res.body.result[Attribute.TypeCS]).to.have.deep.members(["EMERALD", "RUBY",
                     "DIAMANT", "SAPPHIRE"]);
@@ -100,9 +123,9 @@ describe("REST server tests", function () {
     it("POST test for performing a valid query", async function () {
         const query = {
             "brandCode": "CARTIER",
-            "baseModelSKU": "CRB4084600",
+            "baseModelSKU": "CRB4084600TEST03",
             "attributes": {
-                "SIZE": "16",
+                "SIZE": "16cm",
                 "MATERIAL": "GOLD(W)"
             }};
         return request(localHost)
@@ -111,7 +134,7 @@ describe("REST server tests", function () {
             .set("Content-Type", "application/json")
             .expect("Content-Type", /json/)
             .then(function (res: Response) {
-                expect(res.body.result).to.deep.equal("CAR-00001-000014");
+                expect(res.body.result["uuidCode"]).to.deep.equal("CAR-00001-000014");
                 expect(res.status).to.be.equal(200);
             })
             .catch(function (err) {
@@ -123,13 +146,12 @@ describe("REST server tests", function () {
     it("POST test for performing a valid query (part 2)", async function () {
         const query = {
             "attributes": {
-                "MATERIAL": "GOLD(R)",
-                "QUALITY CS": "G SI",
+                "MATERIAL": "GOLD(W)",
                 "TEXTILE COLOR": "RED",
                 "TYPE OF CS": "DIAMANT",
                 "CUT OF CS": "BRILLIANT",
                 "COLOR OF CS": "WHITE",
-                "SIZE CS (CT)": 0.3
+                "SIZE CS (CT)": 0.18
             },
             "brandCode": "SCHAFFRATH",
             "baseModelSKU": "CT001"
@@ -140,7 +162,7 @@ describe("REST server tests", function () {
             .set("Content-Type", "application/json")
             .expect("Content-Type", /json/)
             .then(function (res: Response) {
-                expect(res.body.result).to.deep.equal("SCH-00001-000010");
+                expect(res.body.result["uuidCode"]).to.deep.equal("SCH-00001-000010");
                 expect(res.status).to.be.equal(200);
             })
             .catch(function (err) {
@@ -152,10 +174,10 @@ describe("REST server tests", function () {
     it("POST test for performing an invalid query (absent attribute)", async function () {
         const query = {
             "brandCode": "CARTIER",
-            "baseModelSKU": "CRB4084600",
+            "baseModelSKU": "CRB4084600TEST01",
             "attributes": {
-                "MATERIAL": "GOLD(Y)",
-                "SIZE": "16",
+                "MATERIAL": "GOLD(R)",
+                "SIZE": "16cm",
                 "QUALITY CS": "G SI"
             }
         };
@@ -165,7 +187,8 @@ describe("REST server tests", function () {
             .set("Content-Type", "application/json")
             .expect("Content-Type", /json/)
             .then(function (res: Response) {
-                expect(res.body.error).to.deep.equal("Base model CRB4084600 does not have attribute QUALITY CS.");
+                expect(res.body.error).to.deep.equal("Base model CRB4084600TEST01" +
+                    " does not have attribute QUALITY CS.");
                 expect(res.status).to.be.equal(400);
             })
             .catch(function (err) {
@@ -258,7 +281,6 @@ describe("REST server tests", function () {
             "baseModelSKU": "CT001",
             "attributes": {
                 "SIZE CS (CT)": 1,
-                "QUALITY CS": "G SI",
                 "TEXTILE COLOR": "BLACK"
             }
         };

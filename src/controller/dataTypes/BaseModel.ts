@@ -26,7 +26,7 @@ export class BaseModel {
 
     // Add a new product, knowing its brand and base model. Update attrValues if any new attribute values are
     // encountered. Add any new attributes to attributeList and attrValues.
-    public addProduct(baseModelCode: string, uuid: string, attributes: AttributePairs) {
+    public addProduct(baseModelCode: string, referenceNo: string, uuid: string, attributes: AttributePairs) {
         Object.entries(attributes).forEach(([attr, value]) => {
             if (!this.attributeList.includes(attr as Attribute)) {
                 this.attributeList.push(attr as Attribute);
@@ -43,7 +43,7 @@ export class BaseModel {
         });
 
         this.productList.push(new Product(this.brandCode, this.colCode, this.subColCode, baseModelCode,
-            this.baseModelSKU, uuid, attributes));
+            this.baseModelSKU, referenceNo, uuid, attributes));
     }
 
     public getBrandCode(): string {

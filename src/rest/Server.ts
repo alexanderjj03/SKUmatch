@@ -5,8 +5,8 @@ import ProductFilter from "../controller/ProductFilter";
 import {Brand} from "../controller/dataTypes/Brand";
 import {AttributeValueTable} from "../controller/dataTypes/Attribute";
 import {BaseModel} from "../controller/dataTypes/BaseModel";
-import base = Mocha.reporters.base;
 import {NoResultsError} from "../controller/Errors";
+import {Product} from "../controller/dataTypes/Product";
 
 export default class Server {
     private port: number;
@@ -65,6 +65,8 @@ export default class Server {
         // The get requests are to supply the options for dropdown menus that the frontend will use.
         this.express.get("/data", Server.getBrands);
         this.express.get("/data/:brand", Server.getBaseModels);
+        this.express.get("/manuRef/:brand", Server.getAllRefs);
+        this.express.get("/manuRef/:brand/:refNum", Server.getProductFromRef);
         this.express.get("/data/:brand/:modelSKU", Server.getAttrTable);
         this.express.post("/query",Server.performQuery);
     }
@@ -90,6 +92,34 @@ export default class Server {
         }
     }
 
+    // Server request to show all manufacturer reference numbers for a brand.
+    private static async getAllRefs(req: Request, res: Response) {
+        try {
+            const curBrand: Brand = Server.filter.getLoadedData()[req.params.brand];
+            let output: string[] = [];
+            Object.values(curBrand.getModelList()).forEach((model: BaseModel) => {
+                output = output.concat(model.getProductList().map((prod) => prod.getReferenceNo()));
+            });
+            res.status(200).json({result: output});
+        } catch (err: any) {
+            res.status(400).json({error: err.message});
+        }
+    }
+
+    // Server request to get product object from a manufacturer reference number
+    private static async getProductFromRef(req: Request, res: Response) {
+        try {
+            const output: Product = await Server.filter.getProdFromRef(req.params.brand, req.params.refNum)
+            res.status(200).json({result: output});
+        } catch (err: any) {
+            if (err instanceof NoResultsError) {
+                res.status(404).json({error: err.message});
+            } else {
+                res.status(400).json({error: err.message});
+            }
+        }
+    }
+
     // Server request to get a base model's attribute value table
     private static async getAttrTable(req: Request, res: Response) {
         try {
@@ -106,7 +136,7 @@ export default class Server {
     private static async performQuery(req: Request, res: Response) {
         try {
             const obj = req.body;
-            const output: string = await Server.filter.performQuery(obj);
+            const output: Product = await Server.filter.performQuery(obj);
             res.status(200).json({result: output});
         } catch (err: any) {
             if (err instanceof NoResultsError) {

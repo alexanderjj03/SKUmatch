@@ -3,6 +3,7 @@ import {BaseModelSelector} from "./baseModelSelector";
 import Dropdown from 'react-dropdown'; // Source: https://www.npmjs.com/package/react-dropdown?activeTab=readme
 import 'react-dropdown/style.css';
 import './App.css';
+import {BrandSelectionHandler} from "./brandSelectionHandler";
 
 export const localHost = "http://localhost:3500";
 
@@ -15,7 +16,7 @@ function App() {
   const [displayList, setDisplayList] = useState([[''], ['']]);
   const [rawSelect, setRawSelect] = useState('');
   const [enteredBrand, setEnteredBrand] = useState('');
-  const [selectedBrand, setSelectedBrand] = useState('Select...');
+  const [selectedBrand, setSelectedBrand] = useState('Select an option...');
   const [isSelected, setSelected] = useState(false);
   const [canFilterBrands, setCanFilterBrands] = useState(false);
   const [errMessage, setMessage] = useState("");
@@ -47,7 +48,7 @@ function App() {
           options = fullList.filter(brand => brand.toUpperCase().startsWith(prefix.toUpperCase()));
       }
 
-      let dispList = [['Select...'], ['Select...']];
+      let dispList = [['Select an option...'], ['Select an option...']];
       for (const brand of options) {
           dispList[0].push(brand); // real brand name (usually all caps)
           dispList[1].push(brand.substring(0, 1) + brand.substring(1).toLowerCase()); // Displayed brand name
@@ -92,8 +93,8 @@ function App() {
                   <p>
                       <button disabled={!isSelected}
                               onClick={() => {
-                                  setSelectedBrand('Select...')
-                                  setRawSelect('Select...');
+                                  setSelectedBrand('Select an option...')
+                                  setRawSelect('Select an option...');
                                   setEnteredBrand('');
                                   setSelected(false);
                                   filterBrandList(brandList, '');
@@ -116,15 +117,16 @@ function App() {
                       />
                       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                       <Dropdown
+                          placeholder='Select an option...'
                           value={rawSelect}
                           onChange={val => {
                               setRawSelect(val.value);
-                              if ((val.value !== 'Select...') && displayList[1].indexOf(val.value) !== -1) {
+                              if ((val.value !== 'Select an option...') && displayList[1].indexOf(val.value) !== -1) {
                                   const realBrand = displayList[0][displayList[1].indexOf(val.value)];
                                   setSelectedBrand(realBrand);
                                   setSelected(true);
-                              } else if (val.value === 'Select...') {
-                                  setSelectedBrand('Select...');
+                              } else if (val.value === 'Select an option...') {
+                                  setSelectedBrand('Select an option...');
                                   setSelected(false);
                               }
                           }}
@@ -134,7 +136,7 @@ function App() {
                             &nbsp; ({displayList[1].length - 1} options)
                       </span>
                   </div>
-                  <BaseModelSelector brand={selectedBrand}/>
+                  <BrandSelectionHandler brand={selectedBrand}/>
               </header>
           </div>
       );

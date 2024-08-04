@@ -2,7 +2,7 @@
   "title": "Pomellato query 2",
   "query": {
     "brandCode": "POMELLATO",
-    "baseModelSKU": "PBC3070",
+    "baseModelSKU": "PAC0100",
     "attributes": {
       "MATERIAL": "GOLD(R)",
       "TYPE OF CS": "EMERALD",

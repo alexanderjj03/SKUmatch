@@ -4,20 +4,22 @@ import {Attribute, AttributePairs} from "./Attribute";
 export class Product {
     private brandCode: string;
     private colCode: string;
-    private subColCode: string; // empty string if  product is part of no subcollection.
+    private subColCode: string; // empty string if product is part of no subcollection.
     private baseModelCode: string;
     private baseModelSKU: string;
+    private referenceNo: string;
     private uuidCode: string;
 
     private attributes: AttributePairs;
 
     constructor(brandCode: string, colCode: string, subColCode: string, baseModelCode: string,
-                baseModelSKU: string, uuidCode: string, attributes: AttributePairs) {
+                baseModelSKU: string, referenceNo: string, uuidCode: string, attributes: AttributePairs) {
         this.brandCode = brandCode;
         this.colCode = colCode;
         this.subColCode = subColCode;
         this.baseModelCode = baseModelCode;
         this.baseModelSKU = baseModelSKU;
+        this.referenceNo = referenceNo;
         this.uuidCode = uuidCode;
         this.attributes = attributes;
     }
@@ -40,6 +42,10 @@ export class Product {
 
     public getModelSKU(): string {
         return this.baseModelSKU;
+    }
+
+    public getReferenceNo(): string {
+        return this.referenceNo;
     }
 
     public getUuidCode(): string {

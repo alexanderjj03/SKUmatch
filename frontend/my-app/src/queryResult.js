@@ -60,14 +60,14 @@ export function QueryResult({query}) {
         return (
             <div className="Query-Result">
                 <p>
-                    Manufacturer Reference No: {query["baseModelSKU"]}
+                    <b>Manufacturer Reference No</b>: {result["referenceNo"]}
                 </p>
                 <p>
-                    Product Code: {result}
+                    <b>Product Code</b>: {result["uuidCode"]}
                 </p>
                 <p>
                     <button onClick={() => {
-                        navigator.clipboard.writeText(result)
+                        navigator.clipboard.writeText(result["uuidCode"])
                     }}>
                         Copy product code
                     </button>

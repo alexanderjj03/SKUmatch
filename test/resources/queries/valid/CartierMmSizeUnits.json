@@ -2,7 +2,7 @@
   "title": "Cartier query -- (SIZE units in mm)",
   "query": {
     "brandCode": "CARTIER",
-    "baseModelSKU": "CRB4084600",
+    "baseModelSKU": "CRB6047517TEST04",
     "attributes": {
       "MATERIAL": "PLATIN",
       "SIZE": "48mm"
