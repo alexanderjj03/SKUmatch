@@ -1,34 +1,34 @@
 import React, {useEffect, useState} from "react";
 import Dropdown from 'react-dropdown'; // Source: https://www.npmjs.com/package/react-dropdown?activeTab=readme
 import 'react-dropdown/style.css';
-import {AttrSelector} from "./attrSelector";
-import './baseModelSelector.css';
-import {localHost} from "./App";
+import './manuRefSelector.css';
+import {localHost} from "../App";
+import {ManuRefResult} from "./manuRefResult";
 
-// Allows the user to select the brand's base model via a dropdown menu.
-export function BaseModelSelector({brand}) {
-    const [getModelsUrl] = useState(localHost + `/data/`);
+// Allows the user to view all possible manufacturer reference numbers and select one to view its information.
+export function ManuRefSelector({brand}) {
+    const [getRefsUrl] = useState(localHost + `/manuRef/`);
     const [brandName, setBrandName] = useState(brand);
-    const [modelList, setModelList] = useState(['']);
+    const [refList, setRefList] = useState(['']);
     const [dispListLoaded, setDispListLoaded] = useState(false);
     const [dispList, setDispList] = useState(['']);
-    const [enteredModel, setEnteredModel] = useState('');
-    const [selectedModel, setSelectedModel] = useState('Select an option...');
+    const [enteredRef, setEnteredRef] = useState('');
+    const [selectedRef, setSelectedRef] = useState('Select an option...');
     const [errMessage, setMessage] = useState("");
 
     useEffect(() => {
-        const fetchModels = () => {
-            setSelectedModel('Select an option...');
-            return fetch(getModelsUrl + brand)
+        const fetchRefs = () => {
+            setSelectedRef('Select an option...');
+            return fetch(getRefsUrl + brand)
                 .then((res) =>res.json())
                 .then((data) => {
-                    let modelsList = [];
-                    for (const model of data.result) {
-                        modelsList.push(model);
+                    let refsList = [];
+                    for (const ref of data.result) {
+                        refsList.push(ref);
                     }
-                    setModelList(modelsList);
+                    setRefList(refsList);
 
-                    filterModelList(modelsList, '');
+                    filterRefList(refsList, '');
                 })
                 .catch(err => {
                     setMessage(err);
@@ -37,13 +37,13 @@ export function BaseModelSelector({brand}) {
 
         if (brand !== 'Select an option...') {
             setBrandName(brand);
-            setEnteredModel('');
-            fetchModels();
+            setEnteredRef('');
+            fetchRefs();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [brand]);
 
-    const filterModelList = (fullList, prefix) => {
+    const filterRefList = (fullList, prefix) => {
         let options = ['Select an option...'];
         if (prefix === '') {
             options = options.concat(fullList);
@@ -62,7 +62,7 @@ export function BaseModelSelector({brand}) {
     } else if (!dispListLoaded) {
         if (errMessage === "") {
             return (
-                <div className={"Model-Selector"}>
+                <div className={"Ref-Selector"}>
                     <p>
                         Base model list loading, please wait:
                     </p>
@@ -70,7 +70,7 @@ export function BaseModelSelector({brand}) {
             );
         } else {
             return (
-                <div className={"Model-Selector"}>
+                <div className={"Ref-Selector"}>
                     <p>
                         Error: {errMessage}
                     </p>
@@ -83,31 +83,27 @@ export function BaseModelSelector({brand}) {
         }
     } else {
         return (
-            <div className="Model-Selector">
-                <div className="Model-Dropdown">
+            <div className={"Ref-Selector"}>
+                <div className={"Ref-Dropdown"}>
                     <span>
-                        Base Model Code: &nbsp;
+                        Manufacturer Reference No.: &nbsp;
                     </span>
                     <textarea
-                        placeholder="Start typing your product's base model code"
-                        value={enteredModel}
+                        placeholder="Start typing your product's manufacturer reference number"
+                        value={enteredRef}
                         rows={3}
                         cols={35}
                         onChange={e => {
-                            setEnteredModel(e.target.value.trim());
-                            filterModelList(modelList, e.target.value.trim());
+                            setEnteredRef(e.target.value.trim());
+                            filterRefList(refList, e.target.value.trim());
                         }}
                     />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     <Dropdown
                         placeholder='Select an option...'
-                        value={selectedModel}
+                        value={selectedRef}
                         onChange={(val) => {
-                            if (val.value !== 'Select an option...') {
-                                setSelectedModel(val.value);
-                            } else {
-                                setSelectedModel('Select an option...');
-                            }
+                            setSelectedRef(val.value);
                         }}
                         options={dispList}
                     />
@@ -115,7 +111,7 @@ export function BaseModelSelector({brand}) {
                         &nbsp; ({dispList.length - 1} options)
                     </span>
                 </div>
-                <AttrSelector brand={brandName} baseModel={selectedModel}/>
+                <ManuRefResult brand={brandName} manuRef={selectedRef}/>
             </div>
         );
     }

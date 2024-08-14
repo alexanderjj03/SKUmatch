@@ -6,46 +6,41 @@ import {Product} from "./Product";
 // attribute values as more products are added.
 export class Brand {
     private brandCode: string;
-    private baseModelList: {[key: string]: BaseModel}; // Contains each base model SKU and its corresponding object.
+    private baseModelList: {[key: string]: BaseModel}; // Contains each base model code and its corresponding object.
+    private colDescMap: {[key: string]: string}; // Maps each collection code to its corresponding description.
 
     constructor(brandCode: string) {
         this.brandCode = brandCode;
         this.baseModelList = {};
+        this.colDescMap = {};
     }
 
     public addBaseModel(model: BaseModel) {
-        if (typeof(this.baseModelList[model.getSKU()]) === "undefined") {
-            this.baseModelList[model.getSKU()] = model;
+        if (typeof(this.baseModelList[model.getModelCode()]) === "undefined") {
+            this.baseModelList[model.getModelCode()] = model;
+        }
+
+        if (typeof(this.colDescMap[model.getColCode()]) === "undefined") {
+            this.colDescMap[model.getColCode()] = model.getColDesc();
         }
     }
 
     // Add a new product object to this brand. If it belongs to a base model that isn't already in
     // this.baseModelList, create a new one.
     public addProductObj(product: Product) {
-        if (typeof(this.baseModelList[product.getModelSKU()]) === "undefined") {
-            const newBaseModel = new BaseModel(this.brandCode, product.getColCode(),
-                product.getSubColCode(), product.getModelSKU());
-            newBaseModel.addProduct(product.getBaseModelCode(), product.getReferenceNo(), product.getUuidCode(),
+        if (typeof(this.baseModelList[product.getModelCode()]) === "undefined") {
+            const newBaseModel = new BaseModel(this.brandCode, product.getColCode(), product.getColDesc(),
+                product.getSubColCode(), product.getProductType(), product.getModelCode());
+            newBaseModel.addProduct(product.getModelSKU(), product.getReferenceNo(), product.getUuidCode(),
                 product.getAttributes());
-            this.baseModelList[product.getModelSKU()] = newBaseModel;
+            this.baseModelList[product.getModelCode()] = newBaseModel;
         } else {
-            this.baseModelList[product.getModelSKU()].addProduct(product.getBaseModelCode(),
+            this.baseModelList[product.getModelCode()].addProduct(product.getModelSKU(),
                 product.getReferenceNo(), product.getUuidCode(), product.getAttributes());
         }
-    }
 
-    // Add a new product, knowing only that it belongs to this brand. Provide the remaining data manually
-    // (mainly used for testing)
-    public addProduct(colCode: string, subColCode: string, baseModelCode: string, baseModelSKU: string,
-                      referenceNo: string, uuidCode: string, attributes: AttributePairs) {
-
-        if (typeof(this.baseModelList[baseModelSKU]) === "undefined") {
-            const newBaseModel = new BaseModel(this.brandCode, colCode,
-                subColCode, baseModelSKU);
-            newBaseModel.addProduct(baseModelCode, referenceNo, uuidCode, attributes);
-            this.baseModelList[baseModelSKU] = newBaseModel;
-        } else {
-            this.baseModelList[baseModelSKU].addProduct(baseModelCode, referenceNo, uuidCode, attributes);
+        if (typeof(this.colDescMap[product.getColCode()]) === "undefined") {
+            this.colDescMap[product.getColCode()] = product.getColDesc();
         }
     }
 
@@ -55,7 +50,7 @@ export class Brand {
 
     public getTotalProducts(): number {
         let total = 0;
-        Object.entries(this.baseModelList).forEach(([bmSKU, model]) => {
+        Object.entries(this.baseModelList).forEach(([bmCode, model]) => {
             total += model.getProductList().length;
         });
         return total;
@@ -63,5 +58,9 @@ export class Brand {
 
     public getModelList(): {[key: string]: BaseModel} {
         return this.baseModelList;
+    }
+
+    public getColMap(): {[key: string]: string} {
+        return this.colDescMap;
     }
 }

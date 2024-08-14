@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import Dropdown from 'react-dropdown'; // Source: https://www.npmjs.com/package/react-dropdown?activeTab=readme
 import 'react-dropdown/style.css';
 import './App.css';
-import {BrandSelectionHandler} from "./brandSelectionHandler";
+import {SearchTypeHandler} from "./searchTypeHandler";
 
 export const localHost = "http://localhost:3500";
 
@@ -132,7 +132,7 @@ function App() {
                             &nbsp; ({displayList[1].length - 1} options)
                       </span>
                   </div>
-                  <BrandSelectionHandler brand={selectedBrand}/>
+                  <SearchTypeHandler brand={selectedBrand}/>
               </header>
           </div>
       );

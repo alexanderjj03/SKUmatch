@@ -2,7 +2,7 @@
   "title": "Improperly spelled attribute",
   "query": {
     "brandCode": "SCHAFFRATH",
-    "baseModelSKU": "CT001",
+    "baseModelCode": "SCH-00001",
     "attributes": {
       "Material": "GOLD(R)"
     }

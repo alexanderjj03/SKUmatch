@@ -2,7 +2,7 @@
   "title": "Cartier query -- (SIZE units in mm)",
   "query": {
     "brandCode": "CARTIER",
-    "baseModelSKU": "CRB6047517TEST04",
+    "baseModelCode": "CAR-00002",
     "attributes": {
       "MATERIAL": "PLATIN",
       "SIZE": "48mm"

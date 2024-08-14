@@ -1,11 +1,11 @@
 {
-  "title": "String attribute out of range (units included when they're missing)",
+  "title": "String attribute out of range (units missing when they're included)",
   "query": {
     "brandCode": "CARTIER",
-    "baseModelSKU": "CRB4084600",
+    "baseModelCode": "CAR-00001",
     "attributes": {
       "MATERIAL": "GOLD(Y)",
-      "SIZE": "16cm"
+      "SIZE": "16"
     }
   },
   "expected": "FilterError"

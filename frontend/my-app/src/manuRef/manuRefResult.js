@@ -1,8 +1,7 @@
 import React, {useEffect, useState} from "react";
 import 'react-dropdown/style.css';
-import {attrToDesc, attrValMap} from "./attrSelector";
-import './baseModelSelector.css';
-import {localHost} from "./App";
+import {attrToDesc, attrValMap} from "../collection/attrSelector";
+import {localHost} from "../App";
 
 // Shows the user the corresponding product, given its manufacturer reference number
 export function ManuRefResult({brand, manuRef}) {

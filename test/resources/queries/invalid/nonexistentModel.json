@@ -2,7 +2,7 @@
   "title": "Base model doesn't exist",
   "query": {
     "brandCode": "SCHAFFRATH",
-    "baseModelSKU": "CT000000001",
+    "baseModelCode": "SCH-000001",
     "attributes": {
       "MATERIAL": "GOLD(R)",
       "SIZE CS (CT)": 1,

@@ -27,36 +27,52 @@ describe("ProductFilter", function () {
             async function() {
 
             const result = await filter.loadSaveAllData();
-
             filter = new ProductFilter();
             const result2 = await filter.loadCachedData();
-            // Ensure that SKU match is persisted and reloaded from the persistence file
+            // Ensure that SKU match 3 is persisted and reloaded from the persistence file
 
             const loadedData = filter.getLoadedData();
             expect(Object.keys(loadedData)).to.have.deep.members(
                 ["CAPOLAVORO", "CARTIER", "POMELLATO", "SCHAFFRATH", "SCHMUCKWERK"]);
 
-            expect(Object.keys(loadedData["CAPOLAVORO"].getModelList()).length).to.equal(1);
-            expect(Object.keys(loadedData["CARTIER"].getModelList()).length).to.equal(7);
+            expect(Object.keys(loadedData["CAPOLAVORO"].getModelList()).length).to.equal(7);
+            expect(Object.keys(loadedData["CARTIER"].getModelList()).length).to.equal(2);
             expect(Object.keys(loadedData["POMELLATO"].getModelList()).length).to.equal(1);
-            expect(Object.keys(loadedData["SCHAFFRATH"].getModelList()).length).to.equal(1);
-            expect(Object.keys(loadedData["SCHMUCKWERK"].getModelList()).length).to.equal(4);
+            expect(Object.keys(loadedData["SCHAFFRATH"].getModelList()).length).to.equal(5);
+            expect(Object.keys(loadedData["SCHMUCKWERK"].getModelList()).length).to.equal(5);
 
-            expect(loadedData["CAPOLAVORO"].getModelList()["00368"].getAttributeValues()).to.deep.equal({
-                'MATERIAL': [ 'GOLD(R)', 'GOLD(W)' ],
-                'TYPE OF CS': [ 'AMETHYST', 'MORGANITE', 'PRASIOLITE', 'TOPAZ' ],
-                'COLOR OF CS': [ 'LILAC', 'ROSA', 'GREEN', 'BLUE', 'SKY BLUE' ],
+            expect(loadedData["CAPOLAVORO"].getModelList()["CAP-00001"].getAttributeValues()).to.deep.equal({
+                'MATERIAL': [ 'GOLD(R)' ],
+                'TYPE OF CS': [ 'AMETHYST' ],
+                'COLOR OF CS': [ 'LILAC' ],
                 'SIZE': [ "16cm", "17cm", "18cm" ]});
-            expect(loadedData["CAPOLAVORO"].getModelList()["00368"].getSKU()).to.deep.equal("00368");
-            expect(loadedData["CAPOLAVORO"].getModelList()["00368"].getProductList().length).to.equal(15);
+            expect(loadedData["CAPOLAVORO"].getModelList()["CAP-00001"].getColCode()).to.deep.equal("COL000021");
+            expect(loadedData["CAPOLAVORO"].getModelList()["CAP-00001"]
+                .getProductType()).to.deep.equal("Bracelet");
+            expect(loadedData["CAPOLAVORO"].getModelList()["CAP-00001"].getProductList().length).to.equal(3);
+            expect(loadedData["CAPOLAVORO"].getModelList()["CAP-00006"].getProductList().length).to.equal(1);
 
-            expect(loadedData["CARTIER"].getModelList()["CRB4084600TEST01"].getAttributeValues()).to.deep.equal({
-                'MATERIAL': [ 'GOLD(R)'],
-                'SIZE': [ "15cm", "16cm", "17cm", "18cm", "19cm", "20cm",]});
-            expect(loadedData["CARTIER"].getModelList()["CRB4084600TEST02"].getSKU())
-                .to.deep.equal("CRB4084600TEST02");
-            expect(loadedData["CARTIER"].getModelList()["CRB4084600TEST03"].getProductList().length).to.equal(6);
-            expect(loadedData["CARTIER"].getModelList()["CRB6047517TEST04"].getProductList().length).to.equal(8);
+            expect(loadedData["CARTIER"].getModelList()["CAR-00001"].getAttributeValues()).to.deep.equal({
+                'MATERIAL': [ 'GOLD(R)', 'GOLD(Y)', 'GOLD(W)'],
+                'SIZE': [ "15cm", "16cm", "17cm", "18cm", "19cm", "20cm"]});
+            expect(loadedData["CARTIER"].getModelList()["CAR-00001"].getProductType())
+                .to.deep.equal("Ring");
+            expect(loadedData["CARTIER"].getModelList()["CAR-00001"].getProductList().length).to.equal(18);
+            expect(loadedData["CARTIER"].getModelList()["CAR-00002"].getProductType())
+                .to.deep.equal("Bracelet");
+            expect(loadedData["CARTIER"].getModelList()["CAR-00002"].getProductList().length).to.equal(25);
+
+            expect(loadedData["CAPOLAVORO"].getColMap()["COL000021"]).to.deep.equal("The Colour Collection");
+            expect(loadedData["CARTIER"].getColMap()["COL000019"]).to.deep.equal("Love");
+            expect(loadedData["SCHAFFRATH"].getColMap()["COL000015"]).to.deep.equal("Colortaire");
+            expect(loadedData["SCHAFFRATH"].getColMap()["COL000010"]).to.deep.equal("Tester");
+
+            const infoTable = filter.getInfoMap();
+            expect(infoTable["SMW-00005"].getProductType()).to.deep.equal("Ring");
+            expect(infoTable["SMW-00004"].getProductType()).to.deep.equal("Bracelet");
+            expect(infoTable["SMW-00001"].getProductType()).to.deep.equal("Necklace");
+            expect(infoTable["SCH-00005"].getProductType()).to.deep.equal("Accessoires");
+
 
             // There were more (passing) tests for the rest of loadedData, but I removed these to
             // de-clutter the test suite.
@@ -65,34 +81,51 @@ describe("ProductFilter", function () {
         it("Test removal of persistence file then addition of data via the xlsx file.",
             async function() {
 
-            const result = await filter.removeData("SKU matchxlsx");
+            const result = await filter.removeData("SKU match 3xlsx");
             filter = new ProductFilter();
-
             const result2 = await filter.loadPersistNewData();
+
             const loadedData = filter.getLoadedData();
             expect(Object.keys(loadedData)).to.have.deep.members(
                 ["CAPOLAVORO", "CARTIER", "POMELLATO", "SCHAFFRATH", "SCHMUCKWERK"]);
 
-            expect(Object.keys(loadedData["CAPOLAVORO"].getModelList()).length).to.equal(1);
-            expect(Object.keys(loadedData["CARTIER"].getModelList()).length).to.equal(7);
+            expect(Object.keys(loadedData["CAPOLAVORO"].getModelList()).length).to.equal(7);
+            expect(Object.keys(loadedData["CARTIER"].getModelList()).length).to.equal(2);
             expect(Object.keys(loadedData["POMELLATO"].getModelList()).length).to.equal(1);
-            expect(Object.keys(loadedData["SCHAFFRATH"].getModelList()).length).to.equal(1);
-            expect(Object.keys(loadedData["SCHMUCKWERK"].getModelList()).length).to.equal(4);
+            expect(Object.keys(loadedData["SCHAFFRATH"].getModelList()).length).to.equal(5);
+            expect(Object.keys(loadedData["SCHMUCKWERK"].getModelList()).length).to.equal(5);
 
-            expect(loadedData["CAPOLAVORO"].getModelList()["00368"].getAttributeValues()).to.deep.equal({
-                'MATERIAL': [ 'GOLD(R)', 'GOLD(W)' ],
-                'TYPE OF CS': [ 'AMETHYST', 'MORGANITE', 'PRASIOLITE', 'TOPAZ' ],
-                'COLOR OF CS': [ 'LILAC', 'ROSA', 'GREEN', 'BLUE', 'SKY BLUE' ],
+            expect(loadedData["CAPOLAVORO"].getModelList()["CAP-00001"].getAttributeValues()).to.deep.equal({
+                'MATERIAL': [ 'GOLD(R)' ],
+                'TYPE OF CS': [ 'AMETHYST' ],
+                'COLOR OF CS': [ 'LILAC' ],
                 'SIZE': [ "16cm", "17cm", "18cm" ]});
-            expect(loadedData["CAPOLAVORO"].getModelList()["00368"].getSKU()).to.deep.equal("00368");
-            expect(loadedData["CAPOLAVORO"].getModelList()["00368"].getProductList().length).to.equal(15);
+            expect(loadedData["CAPOLAVORO"].getModelList()["CAP-00001"].getColCode()).to.deep.equal("COL000021");
+            expect(loadedData["CAPOLAVORO"].getModelList()["CAP-00001"]
+                .getProductType()).to.deep.equal("Bracelet");
+            expect(loadedData["CAPOLAVORO"].getModelList()["CAP-00001"].getProductList().length).to.equal(3);
+            expect(loadedData["CAPOLAVORO"].getModelList()["CAP-00006"].getProductList().length).to.equal(1);
 
-            expect(loadedData["CARTIER"].getModelList()["CRB4084600TEST01"].getAttributeValues()).to.deep.equal({
-                'MATERIAL': [ 'GOLD(R)'],
-                'SIZE': [ "15cm", "16cm", "17cm", "18cm", "19cm", "20cm",]});
-            expect(loadedData["CARTIER"].getModelList()["CRB4084600TEST02"].getSKU())
-                .to.deep.equal("CRB4084600TEST02");
-            expect(loadedData["CARTIER"].getModelList()["CRB4084600TEST03"].getProductList().length).to.equal(6);
+            expect(loadedData["CARTIER"].getModelList()["CAR-00001"].getAttributeValues()).to.deep.equal({
+                'MATERIAL': [ 'GOLD(R)', 'GOLD(Y)', 'GOLD(W)'],
+                'SIZE': [ "15cm", "16cm", "17cm", "18cm", "19cm", "20cm"]});
+            expect(loadedData["CARTIER"].getModelList()["CAR-00001"].getProductType())
+                .to.deep.equal("Ring");
+            expect(loadedData["CARTIER"].getModelList()["CAR-00001"].getProductList().length).to.equal(18);
+            expect(loadedData["CARTIER"].getModelList()["CAR-00002"].getProductType())
+                .to.deep.equal("Bracelet");
+            expect(loadedData["CARTIER"].getModelList()["CAR-00002"].getProductList().length).to.equal(25);
+
+            expect(loadedData["CAPOLAVORO"].getColMap()["COL000021"]).to.deep.equal("The Colour Collection");
+            expect(loadedData["CARTIER"].getColMap()["COL000019"]).to.deep.equal("Love");
+            expect(loadedData["SCHAFFRATH"].getColMap()["COL000015"]).to.deep.equal("Colortaire");
+            expect(loadedData["SCHAFFRATH"].getColMap()["COL000010"]).to.deep.equal("Tester");
+
+            const infoTable = filter.getInfoMap();
+            expect(infoTable["SMW-00005"].getProductType()).to.deep.equal("Ring");
+            expect(infoTable["SMW-00004"].getProductType()).to.deep.equal("Bracelet");
+            expect(infoTable["SMW-00001"].getProductType()).to.deep.equal("Necklace");
+            expect(infoTable["SCH-00005"].getProductType()).to.deep.equal("Accessoires");
         });
     });
 

@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {localHost} from "./App";
+import {localHost} from "../App";
 
 // Runs the user's query and displays its result
 export function QueryResult({query}) {

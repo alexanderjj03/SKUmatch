@@ -2,7 +2,7 @@
   "title": "Too many results (not all attributes listed)",
   "query": {
     "brandCode": "SCHAFFRATH",
-    "baseModelSKU": "CT001",
+    "baseModelCode": "SCH-00001",
     "attributes": {
       "SIZE CS (CT)": 1,
       "TEXTILE COLOR": "BLACK"

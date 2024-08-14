@@ -1,0 +1,37 @@
+.Col-Desc-Selector {
+    display:flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: row;
+    padding: 8px;
+}
+
+.image-container {
+    position: relative; /* set container to a relative position */
+    justify-content: center;
+    display: flex;
+    width: 220px; /* set your desired width */
+    height: 220px; /* set your desired height */
+}
+
+.Attri-Selector {
+    display:flex;
+    align-items: start;
+    justify-content: center;
+    flex-direction: row;
+    padding: 8px;
+}
+
+.button {
+    position: absolute; /* set button to an absolute position */
+    top: 90%; /* adjust the top position of the button */
+    left: 50%; /* adjust the left position of the button */
+    transform: translate(-50%, -50%);
+    z-index: 2; /* set a higher z-index than the image */
+}
+
+.image img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}

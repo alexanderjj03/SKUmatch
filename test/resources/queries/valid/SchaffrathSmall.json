@@ -2,7 +2,7 @@
   "title": "Smaller Schaffrath query with unique match",
   "query": {
     "brandCode": "SCHAFFRATH",
-    "baseModelSKU": "CT001",
+    "baseModelCode": "SCH-00001",
     "attributes": {
       "MATERIAL": "GOLD(W)",
       "SIZE CS (CT)": 0.7,

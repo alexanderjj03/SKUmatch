@@ -3,7 +3,7 @@ import Dropdown from 'react-dropdown'; // Source: https://www.npmjs.com/package/
 import 'react-dropdown/style.css';
 import './attrSelector.css';
 import {QueryResult} from "./queryResult";
-import {localHost} from "./App";
+import {localHost} from "../App";
 
 export const attrToDesc = {
     "MATERIAL": "Material", "TYPE OF CS": "Central Stone type",
@@ -27,13 +27,13 @@ export function AttrSelector({brand, baseModel}) {
     const [queryRan, setQueryRan] = useState(false);
     const [errMessage, setMessage] = useState("");
     const [query, setQuery] = useState({"brandCode": brand,
-        "baseModelSKU": baseModel, "attributes": {}});
+        "baseModelCode": baseModel, "attributes": {}});
 
     useEffect(() => {
         const fetchAttrs = () => {
             setQuery({
                 "brandCode": brand,
-                "baseModelSKU": baseModel,
+                "baseModelCode": baseModel,
                 "attributes": {}
             });
             setQueryRan(false);
@@ -142,7 +142,7 @@ export function AttrSelector({brand, baseModel}) {
             return (
                 <div className={"Attribute-Selector"}>
                     <p>
-                        Attributes (we recommend filling all attribute values
+                        Attributes (please fill all attribute values
                         to ensure that a unique product is found):
                     </p>
                     {displayAttrDropdowns()}
@@ -157,7 +157,7 @@ export function AttrSelector({brand, baseModel}) {
             return (
                 <div className={"Attribute-Selector"}>
                     <p>
-                        Attributes (we recommend filling all attribute values
+                        Attributes (please fill all attribute values
                         to ensure that a unique product is found):
                     </p>
                     {displayAttrDropdowns()}

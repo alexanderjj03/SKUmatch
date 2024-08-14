@@ -64,10 +64,11 @@ export default class Server {
     private addRoutes() {
         // The get requests are to supply the options for dropdown menus that the frontend will use.
         this.express.get("/data", Server.getBrands);
+        this.express.get("/table/:brand", Server.getCollections)
         this.express.get("/data/:brand", Server.getBaseModels);
         this.express.get("/manuRef/:brand", Server.getAllRefs);
         this.express.get("/manuRef/:brand/:refNum", Server.getProductFromRef);
-        this.express.get("/data/:brand/:modelSKU", Server.getAttrTable);
+        this.express.get("/data/:brand/:modelCode", Server.getAttrTable);
         this.express.post("/query",Server.performQuery);
     }
 
@@ -76,6 +77,18 @@ export default class Server {
         try {
             const output: string[] = Object.keys(Server.filter.getLoadedData());
             res.status(200).json({result: output});
+        } catch (err: any) {
+            res.status(400).json({error: err.message});
+        }
+    }
+
+    private static async getCollections(req: Request, res: Response) {
+        try {
+            const map = Server.filter.getInfoMap()
+            const cols = Object.values(map).filter((model) =>
+                model.getBrandCode().toUpperCase().trim() === req.params.brand.toUpperCase().trim());
+            const colDescs = Server.filter.getLoadedData()[req.params.brand].getColMap();
+            res.status(200).json({result: cols, colDesc: colDescs});
         } catch (err: any) {
             res.status(400).json({error: err.message});
         }
@@ -100,6 +113,7 @@ export default class Server {
             Object.values(curBrand.getModelList()).forEach((model: BaseModel) => {
                 output = output.concat(model.getProductList().map((prod) => prod.getReferenceNo()));
             });
+            output = Server.filter.removeDuplicates(output);
             res.status(200).json({result: output});
         } catch (err: any) {
             res.status(400).json({error: err.message});
@@ -124,7 +138,7 @@ export default class Server {
     private static async getAttrTable(req: Request, res: Response) {
         try {
             const curBrand: Brand = Server.filter.getLoadedData()[req.params.brand];
-            const baseModel: BaseModel = curBrand.getModelList()[req.params.modelSKU];
+            const baseModel: BaseModel = curBrand.getModelList()[req.params.modelCode];
             const output: AttributeValueTable = baseModel.getAttributeValues();
             res.status(200).json({result: output});
         } catch (err: any) {

@@ -2,10 +2,10 @@
   "title": "Query references attribute absent from base model",
   "query": {
     "brandCode": "CARTIER",
-    "baseModelSKU": "CRB4084600",
+    "baseModelCode": "CAR-00001",
     "attributes": {
       "MATERIAL": "GOLD(Y)",
-      "SIZE": "16",
+      "SIZE": "16cm",
       "QUALITY CS": "G SI"
     }
   },

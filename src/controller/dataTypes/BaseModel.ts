@@ -7,18 +7,23 @@ import {Product} from "./Product";
 export class BaseModel {
     private brandCode: string;
     private colCode: string;
-    private subColCode: string; // empty string if part of no subcollection.
-    private baseModelSKU: string;
+    private colDesc: string;
+    private subColCode: string; // empty string if product is part of no subcollection.
+    private productType: string;
+    private baseModelCode: string;
 
     private productList: Product[];
     private attributeList: Attribute[]; // attributes every associated product contains
     private AttrValues: AttributeValueTable; // Lists all attribute values that appear across productList.
 
-    constructor(brandCode: string, colCode: string, subColCode: string, baseModelSKU: string) {
+    constructor(brandCode: string, colCode: string, colDesc: string, subColCode: string, productType: string,
+                baseModelCode: string) {
         this.brandCode = brandCode;
         this.colCode = colCode;
+        this.colDesc = colDesc;
         this.subColCode = subColCode;
-        this.baseModelSKU = baseModelSKU;
+        this.productType = productType;
+        this.baseModelCode = baseModelCode;
         this.productList = [];
         this.attributeList = [];
         this.AttrValues = {};
@@ -26,7 +31,7 @@ export class BaseModel {
 
     // Add a new product, knowing its brand and base model. Update attrValues if any new attribute values are
     // encountered. Add any new attributes to attributeList and attrValues.
-    public addProduct(baseModelCode: string, referenceNo: string, uuid: string, attributes: AttributePairs) {
+    public addProduct(baseModelSKU: string, referenceNo: string, uuid: string, attributes: AttributePairs) {
         Object.entries(attributes).forEach(([attr, value]) => {
             if (!this.attributeList.includes(attr as Attribute)) {
                 this.attributeList.push(attr as Attribute);
@@ -42,8 +47,8 @@ export class BaseModel {
             }
         });
 
-        this.productList.push(new Product(this.brandCode, this.colCode, this.subColCode, baseModelCode,
-            this.baseModelSKU, referenceNo, uuid, attributes));
+        this.productList.push(new Product(this.brandCode, this.colCode, this.colDesc, this.subColCode,
+            this.productType, this.baseModelCode, baseModelSKU, referenceNo, uuid, attributes));
     }
 
     public getBrandCode(): string {
@@ -54,12 +59,20 @@ export class BaseModel {
         return this.colCode;
     }
 
+    public getColDesc(): string {
+        return this.colDesc;
+    }
+
     public getSubColCode(): string {
         return this.subColCode;
     }
 
-    public getSKU(): string {
-        return this.baseModelSKU;
+    public getProductType(): string {
+        return this.productType;
+    }
+
+    public getModelCode(): string {
+        return this.baseModelCode;
     }
 
     public getProductList(): Product[] {

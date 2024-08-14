@@ -1,11 +1,11 @@
-.Model-Selector {
+.Ref-Selector {
     display:flex;
     align-items: center;
     justify-content: center;
     flex-direction: column;
 }
 
-.Model-Dropdown {
+.Ref-Dropdown {
     display:flex;
     align-items: center;
     justify-content: center;

@@ -43,13 +43,7 @@ describe("REST server tests", function () {
         return request(localHost)
             .get("/data/CARTIER")
             .then(function (res: Response) {
-                expect(res.body.result).to.have.deep.members(['CRB4084600TEST01',
-                    'CRB4084600TEST02',
-                    'CRB4084600TEST03',
-                    'CRB6047517TEST01',
-                    'CRB6047517TEST02',
-                    'CRB6047517TEST03',
-                    'CRB6047517TEST04']);
+                expect(res.body.result).to.have.deep.members(['CAR-00001', 'CAR-00002']);
                 expect(res.status).to.be.equal(200);
             })
             .catch(function (err) {
@@ -79,7 +73,8 @@ describe("REST server tests", function () {
         return request(localHost)
             .get("/data/SCHMUCKWERK")
             .then(function (res: Response) {
-                expect(res.body.result).to.have.deep.members(["GR225", "GA414", "GA506", "DA196"]);
+                expect(res.body.result).to.have.deep.members(['SMW-00005', 'SMW-00003',
+                    'SMW-00004', 'SMW-00002', 'SMW-00001']);
                 expect(res.status).to.be.equal(200);
             })
             .catch(function (err) {
@@ -90,12 +85,12 @@ describe("REST server tests", function () {
 
     it("GET base model CRB4084600TEST01's attribute value table", async function () {
         return request(localHost)
-            .get("/data/CARTIER/CRB4084600TEST01")
+            .get("/data/CARTIER/CAR-00001")
             .then(function (res: Response) {
                 expect(res.body.result[Attribute.Size]).to.have.deep.members(["15cm", "16cm", "17cm",
                     "18cm", "19cm", "20cm"]);
                 expect(res.body.result[Attribute.Material]).to.have.deep.members(
-                    ["GOLD(R)"]);
+                    ["GOLD(R)", "GOLD(Y)", "GOLD(W)"]);
                 expect(res.status).to.be.equal(200);
             })
             .catch(function (err) {
@@ -106,7 +101,7 @@ describe("REST server tests", function () {
 
     it("GET base model PAC0100's attribute value table", async function () {
         return request(localHost)
-            .get("/data/POMELLATO/PAC0100")
+            .get("/data/POMELLATO/POM-00001")
             .then(function (res: Response) {
                 expect(res.body.result[Attribute.TypeCS]).to.have.deep.members(["EMERALD", "RUBY",
                     "DIAMANT", "SAPPHIRE"]);
@@ -123,7 +118,7 @@ describe("REST server tests", function () {
     it("POST test for performing a valid query", async function () {
         const query = {
             "brandCode": "CARTIER",
-            "baseModelSKU": "CRB4084600TEST03",
+            "baseModelCode": "CAR-00001",
             "attributes": {
                 "SIZE": "16cm",
                 "MATERIAL": "GOLD(W)"
@@ -154,7 +149,7 @@ describe("REST server tests", function () {
                 "SIZE CS (CT)": 0.18
             },
             "brandCode": "SCHAFFRATH",
-            "baseModelSKU": "CT001"
+            "baseModelCode": "SCH-00001"
         };
         return request(localHost)
             .post("/query")
@@ -174,7 +169,7 @@ describe("REST server tests", function () {
     it("POST test for performing an invalid query (absent attribute)", async function () {
         const query = {
             "brandCode": "CARTIER",
-            "baseModelSKU": "CRB4084600TEST01",
+            "baseModelCode": "CAR-00001",
             "attributes": {
                 "MATERIAL": "GOLD(R)",
                 "SIZE": "16cm",
@@ -187,7 +182,7 @@ describe("REST server tests", function () {
             .set("Content-Type", "application/json")
             .expect("Content-Type", /json/)
             .then(function (res: Response) {
-                expect(res.body.error).to.deep.equal("Base model CRB4084600TEST01" +
+                expect(res.body.error).to.deep.equal("Base model CAR-00001" +
                     " does not have attribute QUALITY CS.");
                 expect(res.status).to.be.equal(400);
             })
@@ -200,7 +195,7 @@ describe("REST server tests", function () {
     it("POST test on invalid query (non-existent base model)", async function () {
         const query = {
             "brandCode": "SCHAFFRATH",
-            "baseModelSKU": "CT000000001",
+            "baseModelCode": "SCH-000001",
             "attributes": {
                 "MATERIAL": "GOLD(R)",
                 "SIZE CS (CT)": 1,
@@ -227,7 +222,7 @@ describe("REST server tests", function () {
     it("POST test on invalid query (attribute out of range)", async function () {
         const query = {
             "brandCode": "SCHAFFRATH",
-            "baseModelSKU": "CT001",
+            "baseModelCode": "SCH-00001",
             "attributes": {
                 "MATERIAL": "GOLD(R)",
                 "SIZE CS (CT)": "0.4"
@@ -240,7 +235,7 @@ describe("REST server tests", function () {
             .expect("Content-Type", /json/)
             .then(function (res: Response) {
                 expect(res.body.error).to.deep.equal("Attribute value SIZE CS (CT) = 0.4 is out of range " +
-                    "for base model CT001");
+                    "for base model SCH-00001");
                 expect(res.status).to.be.equal(400);
             })
             .catch(function (err) {
@@ -252,7 +247,7 @@ describe("REST server tests", function () {
     it("POST test on invalid query (no results)", async function () {
         const query = {
             "brandCode": "SCHMUCKWERK",
-            "baseModelSKU": "DA196",
+            "baseModelCode": "SMW-00002",
             "attributes": {
                 "MATERIAL": "GOLD(R)",
                 "GLASS COLOR": "BLACK",
@@ -278,7 +273,7 @@ describe("REST server tests", function () {
     it("POST test on invalid query (too many results)", async function () {
         const query = {
             "brandCode": "SCHAFFRATH",
-            "baseModelSKU": "CT001",
+            "baseModelCode": "SCH-00001",
             "attributes": {
                 "SIZE CS (CT)": 1,
                 "TEXTILE COLOR": "BLACK"

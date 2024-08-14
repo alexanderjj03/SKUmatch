@@ -6,17 +6,22 @@ import {BaseModel} from "./dataTypes/BaseModel";
 import {Attribute, AttributePairs} from "./dataTypes/Attribute";
 import {DataAddError, DatabaseError, FilterError, NoResultsError, ResultTooLargeError} from "./Errors";
 import {Product} from "./dataTypes/Product";
+import {ModelInfo} from "./dataTypes/modelInfo";
 
 // Contains all the central functions to filter a list of products via user-provided JSON queries.
 export default class ProductFilter {
     private loadedData: {[key: string]: Brand}; // Contains each brand name and its corresponding Brand object.
-    private loadedFiles: string[]; // Represented as a filename (in externalData) minus the period (e.g. SKU matchxlsx).
+    private modelInfoMap: {[key: string]: ModelInfo} // Contains each base model code and its info
+    // (product type, brand code, base model code, collection code, image URL).
+    private loadedFiles: string[];
+    // Represented as a filename (in externalData) minus the period (e.g. SKU match 3xlsx).
     private cachedFiles: string[]; // Represented in the same way as loadedFiles.
     private dataIsLoaded: boolean;
 
     constructor() {
         console.log("ProductFIlter::init()");
         this.loadedData = {};
+        this.modelInfoMap = {};
         this.loadedFiles = [];
         this.cachedFiles = [];
         this.dataIsLoaded = false;
@@ -37,7 +42,7 @@ export default class ProductFilter {
             this.dataIsLoaded = true;
             return Promise.resolve();
         } catch (err: any) {
-            return Promise.reject(new DataAddError(err.getMessage()));
+            return Promise.reject(new DataAddError(err.message));
         }
     }
 
@@ -57,10 +62,11 @@ export default class ProductFilter {
 
             if (fileNameParts[1] === "json") {
                 this.cachedFiles.push(fileNameParts[0]);
-                const result = await loadJsonPersistFile(file);
+                const result: [{[key: string]: Brand}, {[key: string]: ModelInfo}] = await loadJsonPersistFile(file);
                 this.loadedFiles.push(fileNameParts[0]);
 
-                this.loadedData = this.mergeBrandDicts(this.loadedData, result);
+                this.loadedData = this.mergeBrandDicts(this.loadedData, result[0]);
+                this.modelInfoMap = this.mergeInfoDicts(this.modelInfoMap, result[1]);
                 ret.push(fileNameParts[0]);
             }
         }
@@ -87,12 +93,13 @@ export default class ProductFilter {
             } // No need to load external files that are already stored in persistedData.
 
             if (fileNameParts[1] === "xlsx") {
-                const result = await loadExcelFile(file);
+                const result: [{[key: string]: Brand}, {[key: string]: ModelInfo}] = await loadExcelFile(file);
                 this.loadedFiles.push(rawName);
 
-                this.loadedData = this.mergeBrandDicts(this.loadedData, result);
+                this.loadedData = this.mergeBrandDicts(this.loadedData, result[0]);
+                this.modelInfoMap = this.mergeInfoDicts(this.modelInfoMap, result[1]);
 
-                const res2= await persistData(rawName, result);
+                const res2= await persistData(rawName, result[0], result[1]);
                 this.cachedFiles.push(rawName);
                 ret.push(fileNameParts[0]);
             }
@@ -101,9 +108,31 @@ export default class ProductFilter {
         return Promise.resolve(ret);
     }
 
+    // Merges two model info dictionaries, usually to combine the data from multiple external/persistence files.
+    public mergeInfoDicts(dict1: {[key: string]: ModelInfo}, dict2: {[key: string]: ModelInfo}):
+        {[key: string]: ModelInfo} {
+
+        if (Object.keys(dict1).length === 0) {
+            return dict2;
+        } else if (Object.keys(dict2).length === 0) {
+            return dict1;
+        }
+
+        let ret: {[key: string]: ModelInfo} = dict1;
+        // dict1 will usually be larger as it equals this.modelInfoMap.
+
+        Object.keys(dict2).forEach(modelCode => {
+            if (typeof(ret[modelCode]) === "undefined" ||
+                ret[modelCode].getImageUrl() !== dict2[modelCode].getImageUrl()) {
+
+                ret[modelCode] = dict2[modelCode];
+            }
+        });
+        return ret;
+    }
+
     // Merges two Brand dictionaries, usually to combine the data from multiple external/persistence files.
-    // To prevent duplicate product entries, no particular product should appear in both dict1 and dict2.
-    // Nevertheless, this case is handled in PerformQuery.
+    // To prevent duplicate product entries, NO PARTICULAR PRODUCT SHOULD APPEAR in both dict1 and dict2.
     public mergeBrandDicts(dict1: {[key: string]: Brand}, dict2: {[key: string]: Brand}): {[key: string]: Brand} {
         if (Object.keys(dict1).length === 0) {
             return dict2;
@@ -118,7 +147,7 @@ export default class ProductFilter {
             if (typeof(ret[brName]) === "undefined") {
                 ret[brName] = dict2[brName];
             } else {
-                Object.entries(dict2[brName].getModelList()).forEach(([bmSKU, model]) => {
+                Object.entries(dict2[brName].getModelList()).forEach(([bmCode, model]) => {
                     for (const product of model.getProductList()) {
                         ret[brName].addProductObj(product);
                     }
@@ -131,7 +160,7 @@ export default class ProductFilter {
     /*
     Executes a user-provided query to filter through this.loadedData and return a matching product UUID with the
     desired brand, base model, and attributes. Removes any duplicate UUID's.
-    REQUIRES: query provides the brand name and base model SKU, in addition to any number of attribute-value pairs
+    REQUIRES: query provides the brand name and base model code, in addition to any number of attribute-value pairs
     (so long as the base model contains every referenced attribute).
     Must follow the format provided in ProductFilter.spec.ts (line 192).
     */
@@ -141,7 +170,7 @@ export default class ProductFilter {
         let ret: Product[] = [];
 
         try {
-            modelToSearch = this.loadedData[query["brandCode"]].getModelList()[query["baseModelSKU"]];
+            modelToSearch = this.loadedData[query["brandCode"]].getModelList()[query["baseModelCode"]];
             ret = modelToSearch.getProductList();
             // Isolates a single baseModel to search, given the first two query components.
 
@@ -186,24 +215,24 @@ export default class ProductFilter {
     public validateQueryAttr(query: any, modelToSearch: BaseModel, attr: string) {
         // If the base model doesn't contain an attribute referenced in the query
         if (!modelToSearch.getAttributeList().includes(attr as Attribute)) {
-            throw new FilterError("Base model " + modelToSearch.getSKU() + " does not have attribute "
+            throw new FilterError("Base model " + modelToSearch.getModelCode() + " does not have attribute "
                 + attr as Attribute + ".");
         }
 
         // If the referenced attribute appears in attributeList but not AttrValues (shouldn't ever happen)
         let modelAttrValues = modelToSearch.getAttributeValues()[attr as Attribute];
         if (typeof(modelAttrValues) === "undefined") {
-            throw new FilterError("Inconsistency in base model " + modelToSearch.getSKU()
+            throw new FilterError("Inconsistency in base model " + modelToSearch.getModelCode()
                 + "'s attribute data. Review code");
 
         // If the desired value(s) of the attribute referenced in the query is/are out of the base model's range
         } else if (!modelAttrValues.includes(query["attributes"][attr])) {
             throw new FilterError("Attribute value " + attr as Attribute + " = " + query["attributes"][attr] +
-                " is out of range for base model " + modelToSearch.getSKU());
+                " is out of range for base model " + modelToSearch.getModelCode());
         }
     }
 
-    // Removes all unique elements in a string arr.
+    // Returns all unique elements in a string arr.
     public removeDuplicates(arr: string[]): string[] {
         const counts: {[key: string]: number} = {};
         for (const str of arr) {
@@ -213,7 +242,9 @@ export default class ProductFilter {
         return Object.keys(counts);
     }
 
-    // Finds a product object based on its corresponding brand and manufacturer reference number
+    // Finds a product object based on its corresponding brand and manufacturer reference number.
+    // Fails if there are multiple matches.             Fix this later.
+    // REQUIRES: No duplicate products can be present (BE CAREFUL if loading data from multiple files).
     public async getProdFromRef(brand: string, manuRef: string): Promise<Product> {
         await this.loadSaveAllData(); // Ensure all data are loaded and saved to the disk first.
         let brandToSearch: Brand;
@@ -232,12 +263,12 @@ export default class ProductFilter {
             return Promise.reject(new FilterError(err.message));
         }
 
-        let retRefs = ret.map((value) => value.getReferenceNo());
+        let retUUIDs = ret.map((value) => value.getUuidCode());
 
-        if (ret.length >= 2) {
-            await persistFailedQuery({"Brand": brand, "Manufacturer Reference No.": manuRef}, retRefs);
+        if (this.removeDuplicates(retUUIDs).length >= 2) {
+            await persistFailedQuery({"Brand": brand, "Manufacturer Reference No.": manuRef}, retUUIDs);
             // This is of interest to the developers for bug fixing purposes.
-            return Promise.reject(new DatabaseError("Multiple matching products found: " + retRefs + ". " +
+            return Promise.reject(new DatabaseError("Multiple matching products found: " + retUUIDs + ". " +
                 "Your query and its result have been sent to our developers for review. " +
                 "Apologies for the inconvenience"));
         } else if (ret.length === 0) {
@@ -268,5 +299,9 @@ export default class ProductFilter {
 
     public getLoadedData() {
         return this.loadedData;
+    }
+
+    public getInfoMap() {
+        return this.modelInfoMap;
     }
 }

@@ -1,11 +1,10 @@
 import React, {useEffect, useState} from "react";
 import 'react-dropdown/style.css';
-import './baseModelSelector.css';
-import {BaseModelSelector} from "./baseModelSelector";
-import {ManuRefSelector} from "./manuRefSelector";
+import {ManuRefSelector} from "./manuRef/manuRefSelector";
+import {CollectionSelector} from "./collection/collectionSelector";
 
 // Gives the user to search for a product by base model code or manufacturer reference number.
-export function BrandSelectionHandler({brand}) {
+export function SearchTypeHandler({brand}) {
     const [brandName, setBrandName] = useState(brand);
     const [manuRefChosen, setManuRefChosen] = useState(true);
     const [button1Disabled, setButton1Disabled] = useState(false);
@@ -14,7 +13,6 @@ export function BrandSelectionHandler({brand}) {
     useEffect(() => {
         if (brand !== 'Select an option...') {
             setBrandName(brand);
-            setManuRefChosen(true);
         }
     }, [brand]);
 
@@ -32,7 +30,7 @@ export function BrandSelectionHandler({brand}) {
                         setTimeout(() => setButton2Disabled(false), 1000);
                         // to prevent server request spam
                     }} disabled={button1Disabled}>
-                        Search by Base Model Code & Attributes
+                        Search by Collection
                     </button>
                 </p>
                 <ManuRefSelector brand={brandName}/>
@@ -51,7 +49,7 @@ export function BrandSelectionHandler({brand}) {
                         Search by Manufacturer Reference Number
                     </button>
                 </p>
-                <BaseModelSelector brand={brandName}/>
+                <CollectionSelector brand={brandName}/>
             </div>
         );
     }

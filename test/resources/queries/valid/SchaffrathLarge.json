@@ -10,7 +10,7 @@
       "SIZE CS (CT)": 0.18
     },
     "brandCode": "SCHAFFRATH",
-    "baseModelSKU": "CT001"
+    "baseModelCode": "SCH-00001"
   },
   "expected": "SCH-00001-000010"
 }

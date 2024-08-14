@@ -2,7 +2,7 @@
   "title": "Capolavoro query -- not all attributes in query",
   "query": {
     "brandCode": "CAPOLAVORO",
-    "baseModelSKU": "00368",
+    "baseModelCode": "CAP-00004",
     "attributes": {
       "MATERIAL": "GOLD(W)",
       "SIZE": "18cm",

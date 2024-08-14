@@ -2,7 +2,7 @@
   "title": "Numerical attribute out of range",
   "query": {
     "brandCode": "SCHAFFRATH",
-    "baseModelSKU": "CT001",
+    "baseModelCode": "SCH-00001",
     "attributes": {
       "MATERIAL": "GOLD(R)",
       "SIZE CS (CT)": 0.3555

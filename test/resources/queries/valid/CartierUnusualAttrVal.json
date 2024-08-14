@@ -2,7 +2,7 @@
   "title": "Cartier query -- (Units missing for SIZE attribute)",
   "query": {
     "brandCode": "CARTIER",
-    "baseModelSKU": "CRB4084600TEST03",
+    "baseModelCode": "CAR-00001",
     "attributes": {
       "SIZE": "16cm",
       "MATERIAL": "GOLD(W)"

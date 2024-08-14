@@ -2,7 +2,7 @@
   "title": "String attribute out of range (wrong type)",
   "query": {
     "brandCode": "SCHMUCKWERK",
-    "baseModelSKU": "GR225",
+    "baseModelCode": "SMW-00005",
     "attributes": {
       "MATERIAL": "GOLD(R)",
       "SIZE": 51
