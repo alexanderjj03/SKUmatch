@@ -28,6 +28,7 @@ export function AttrSelector({brand, baseModel}) {
     const [errMessage, setMessage] = useState("");
     const [query, setQuery] = useState({"brandCode": brand,
         "baseModelCode": baseModel, "attributes": {}});
+    const [buttonDisabled, setButtonDisabled] = useState(false);
 
     useEffect(() => {
         const fetchAttrs = () => {
@@ -147,7 +148,12 @@ export function AttrSelector({brand, baseModel}) {
                     </p>
                     {displayAttrDropdowns()}
                     <p>
-                        <button onClick={() => {setQueryRan(true)}}>
+                        <button disabled={buttonDisabled}
+                                onClick={() => {
+                                    setQueryRan(true)
+                                    setButtonDisabled(true);
+                                    setTimeout(() => setButtonDisabled(false), 1000);
+                                }}>
                             Find matching product code
                         </button>
                     </p>

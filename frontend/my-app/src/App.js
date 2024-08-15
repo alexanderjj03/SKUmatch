@@ -17,6 +17,7 @@ function App() {
   const [selectedBrand, setSelectedBrand] = useState('Select an option...');
   const [isSelected, setSelected] = useState(false);
   const [errMessage, setMessage] = useState("");
+  const [disableDropdown, setDisableDropdown] = useState(false);
 
   useEffect(() => {
       const fetchBrands = () => {
@@ -114,9 +115,12 @@ function App() {
                       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                       <Dropdown
                           placeholder='Select an option...'
+                          disabled={disableDropdown}
                           value={rawSelect}
                           onChange={val => {
                               setRawSelect(val.value);
+                              setDisableDropdown(true);
+                              setTimeout(() => setDisableDropdown(false), 1000);
                               if ((val.value !== 'Select an option...') && displayList[1].indexOf(val.value) !== -1) {
                                   const realBrand = displayList[0][displayList[1].indexOf(val.value)];
                                   setSelectedBrand(realBrand);

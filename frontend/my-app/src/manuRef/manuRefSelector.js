@@ -15,6 +15,7 @@ export function ManuRefSelector({brand}) {
     const [enteredRef, setEnteredRef] = useState('');
     const [selectedRef, setSelectedRef] = useState('Select an option...');
     const [errMessage, setMessage] = useState("");
+    const [disableDropdown, setDisableDropdown] = useState(false);
 
     useEffect(() => {
         const fetchRefs = () => {
@@ -102,8 +103,11 @@ export function ManuRefSelector({brand}) {
                     <Dropdown
                         placeholder='Select an option...'
                         value={selectedRef}
+                        disabled={disableDropdown}
                         onChange={(val) => {
                             setSelectedRef(val.value);
+                            setDisableDropdown(true);
+                            setTimeout(() => setDisableDropdown(false), 1000);
                         }}
                         options={dispList}
                     />
