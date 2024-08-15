@@ -20,6 +20,7 @@ export function CollectionSelector({brand}) {
     const [modelList, setModelList] = useState([]);
     const [selectedModel, setSelectedModel] = useState('Select an option...');
     const [errMessage, setMessage] = useState("");
+    const [buttonsDisabled, setButtonsDisabled] = useState(false);
 
     useEffect(() => {
         const fetchCols = () => {
@@ -71,7 +72,7 @@ export function CollectionSelector({brand}) {
             displayArr.push(
                 <div key={1}>
                     <p>
-                        Click the image that most resembles your product (attribute entry will follow):
+                        Select the image that most resembles your product (attribute entry will follow):
                     </p>
                 </div>
             );
@@ -87,8 +88,10 @@ export function CollectionSelector({brand}) {
                                     <img src={options[index]["imageUrl"]} alt="Image"/>
                                 </div>
                                 <button className="button" onClick={() => {
-                                    setSelectedModel(options[index]["baseModelCode"])
-                                }}>Select
+                                    setSelectedModel(options[index]["baseModelCode"]);
+                                    setButtonsDisabled(true);
+                                    setTimeout(() => setButtonsDisabled(false), 1000);
+                                }} disabled={buttonsDisabled}>Select
                                 </button>
                             </div>
                             <div className="image-container">
@@ -96,8 +99,10 @@ export function CollectionSelector({brand}) {
                                     <img src={options[index + 1]["imageUrl"]} alt="Image"/>
                                 </div>
                                 <button className="button" onClick={() => {
-                                    setSelectedModel(options[index + 1]["baseModelCode"])
-                                }}>Select
+                                    setSelectedModel(options[index + 1]["baseModelCode"]);
+                                    setButtonsDisabled(true);
+                                    setTimeout(() => setButtonsDisabled(false), 1000);
+                                }} disabled={buttonsDisabled}>Select
                                 </button>
                             </div>
                         </div>
@@ -109,8 +114,12 @@ export function CollectionSelector({brand}) {
                                 <div className={"image"}>
                                     <img src={options[index]["imageUrl"]} alt="Image"/>
                                 </div>
-                                <button className="button" onClick={() =>
-                                {setSelectedModel(options[index]["baseModelCode"])}}>Select</button>
+                                <button className="button" onClick={() => {
+                                    setSelectedModel(options[index]["baseModelCode"]);
+                                    setButtonsDisabled(true);
+                                    setTimeout(() => setButtonsDisabled(false), 1000);
+                                }} disabled={buttonsDisabled}>Select
+                                </button>
                             </div>
                         </div>
                     );
@@ -122,8 +131,10 @@ export function CollectionSelector({brand}) {
                                     <img src={options[index]["imageUrl"]} alt="Image"/>
                                 </div>
                                 <button className="button" onClick={() => {
-                                    setSelectedModel(options[index]["baseModelCode"])
-                                }}>Select
+                                    setSelectedModel(options[index]["baseModelCode"]);
+                                    setButtonsDisabled(true);
+                                    setTimeout(() => setButtonsDisabled(false), 1000);
+                                }} disabled={buttonsDisabled}>Select
                                 </button>
                             </div>
                             <div className="image-container">
@@ -131,8 +142,10 @@ export function CollectionSelector({brand}) {
                                     <img src={options[index + 1]["imageUrl"]} alt="Image"/>
                                 </div>
                                 <button className="button" onClick={() => {
-                                    setSelectedModel(options[index + 1]["baseModelCode"])
-                                }}>Select
+                                    setSelectedModel(options[index + 1]["baseModelCode"]);
+                                    setButtonsDisabled(true);
+                                    setTimeout(() => setButtonsDisabled(false), 1000);
+                                }} disabled={buttonsDisabled}>Select
                                 </button>
                             </div>
                             <div className="image-container">
@@ -140,8 +153,10 @@ export function CollectionSelector({brand}) {
                                     <img src={options[index + 2]["imageUrl"]} alt="Image"/>
                                 </div>
                                 <button className="button" onClick={() => {
-                                    setSelectedModel(options[index + 2]["baseModelCode"])
-                                }}>Select
+                                    setSelectedModel(options[index + 2]["baseModelCode"]);
+                                    setButtonsDisabled(true);
+                                    setTimeout(() => setButtonsDisabled(false), 1000);
+                                }} disabled={buttonsDisabled}>Select
                                 </button>
                             </div>
                         </div>
