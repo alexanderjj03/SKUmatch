@@ -17,7 +17,6 @@ export function CollectionSelector({brand}) {
     const [selectedCol, setSelectedCol] = useState('Select an option...');
     const [colSelected, setColSelected] = useState(false);
     const [selectedType, setSelectedType] = useState('Select an option...');
-    const [modelList, setModelList] = useState([]);
     const [selectedModel, setSelectedModel] = useState('Select an option...');
     const [errMessage, setMessage] = useState("");
     const [buttonsDisabled, setButtonsDisabled] = useState(false);
@@ -33,12 +32,12 @@ export function CollectionSelector({brand}) {
                 .then((res) => res.json())
                 .then((data) => {
                     setColsInfo(data.result);
-                    setColsDesc([Object.keys(data.colDesc), Object.values(data.colDesc)]);
+                    setColsDesc([data.result.map((info) => info["colCode"]),
+                        data.result.map((info) => info["colDesc"])]);
                     setDispLoaded(true);
 
-                    // Collections that appear in the brand's colDescMap will appear
                     let dispDesc = ['Select an option...'];
-                    dispDesc = dispDesc.concat(Object.values(data.colDesc));
+                    dispDesc = dispDesc.concat(removeDuplicates(data.result.map((info) => info["colDesc"])));
                     setDispColsList(dispDesc);
                     setDispLoaded(true);
                 })
@@ -82,7 +81,7 @@ export function CollectionSelector({brand}) {
             for (let index = 0; index < options.length; index+= 3) {
                 if (options.length - index === 2) {
                     displayArr.push(
-                        <div className="Col-Desc-Selector">
+                        <div className="Col-Desc-Selector" key={index}>
                             <div className="image-container">
                                 <div className={"image"}>
                                     <img src={options[index]["imageUrl"]} alt="Image"/>
@@ -109,7 +108,7 @@ export function CollectionSelector({brand}) {
                     );
                 } else if (options.length - index === 1) {
                     displayArr.push(
-                        <div className="Col-Desc-Selector">
+                        <div className="Col-Desc-Selector" key={index}>
                             <div className="image-container">
                                 <div className={"image"}>
                                     <img src={options[index]["imageUrl"]} alt="Image"/>
@@ -125,7 +124,7 @@ export function CollectionSelector({brand}) {
                     );
                 } else {
                     displayArr.push(
-                        <div className="Col-Desc-Selector">
+                        <div className="Col-Desc-Selector" key={index}>
                             <div className="image-container">
                                 <div className={"image"}>
                                     <img src={options[index]["imageUrl"]} alt="Image"/>

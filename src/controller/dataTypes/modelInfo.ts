@@ -4,13 +4,16 @@
 export class ModelInfo {
     private brandCode: string;
     private colCode: string;
+    private colDesc: string;
     private productType: string;
     private baseModelCode: string;
     private imageUrl: string;
 
-    constructor(brandCode: string, colCode: string, productType: string, baseModelCode: string, imageUrl: string) {
+    constructor(brandCode: string, colCode: string, colDesc: string, productType: string, baseModelCode: string,
+                imageUrl: string) {
         this.brandCode = brandCode;
         this.colCode = colCode;
+        this.colDesc = colDesc;
         this.productType = productType;
         this.baseModelCode = baseModelCode;
         this.imageUrl = imageUrl;
@@ -20,8 +23,12 @@ export class ModelInfo {
         return this.brandCode;
     }
 
-    public getColCodr(): string {
+    public getColCode(): string {
         return this.colCode;
+    }
+
+    public getColDesc(): string {
+        return this.colDesc;
     }
 
     public getProductType(): string {

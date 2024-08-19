@@ -13,10 +13,11 @@ export class Product {
     private uuidCode: string;
 
     private attributes: AttributePairs;
+    private pictureLink: string;
 
     constructor(brandCode: string, colCode: string, colDesc: string, subColCode: string, productType: string,
                 baseModelCode: string, baseModelSKU: string, referenceNo: string, uuidCode: string,
-                attributes: AttributePairs) {
+                attributes: AttributePairs, pictureLink: string) {
         this.brandCode = brandCode;
         this.colCode = colCode;
         this.colDesc = colDesc;
@@ -27,6 +28,7 @@ export class Product {
         this.referenceNo = referenceNo;
         this.uuidCode = uuidCode;
         this.attributes = attributes;
+        this.pictureLink = pictureLink;
     }
 
     public getBrandCode(): string {
@@ -67,5 +69,9 @@ export class Product {
 
     public getAttributes(): AttributePairs {
         return this.attributes;
+    }
+
+    public getPictureLink(): string {
+        return this.pictureLink;
     }
 }

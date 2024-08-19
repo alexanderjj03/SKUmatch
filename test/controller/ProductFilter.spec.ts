@@ -33,7 +33,7 @@ describe("ProductFilter", function () {
 
             const loadedData = filter.getLoadedData();
             expect(Object.keys(loadedData)).to.have.deep.members(
-                ["CAPOLAVORO", "CARTIER", "POMELLATO", "SCHAFFRATH", "SCHMUCKWERK"]);
+                ["CAPOLAVORO", "CARTIER", "POMELLATO", "SCHAFFRATH", "SCHMUCKWERK", "FOPE"]);
 
             expect(Object.keys(loadedData["CAPOLAVORO"].getModelList()).length).to.equal(7);
             expect(Object.keys(loadedData["CARTIER"].getModelList()).length).to.equal(2);
@@ -61,11 +61,6 @@ describe("ProductFilter", function () {
             expect(loadedData["CARTIER"].getModelList()["CAR-00002"].getProductType())
                 .to.deep.equal("Bracelet");
             expect(loadedData["CARTIER"].getModelList()["CAR-00002"].getProductList().length).to.equal(25);
-
-            expect(loadedData["CAPOLAVORO"].getColMap()["COL000021"]).to.deep.equal("The Colour Collection");
-            expect(loadedData["CARTIER"].getColMap()["COL000019"]).to.deep.equal("Love");
-            expect(loadedData["SCHAFFRATH"].getColMap()["COL000015"]).to.deep.equal("Colortaire");
-            expect(loadedData["SCHAFFRATH"].getColMap()["COL000010"]).to.deep.equal("Tester");
 
             const infoTable = filter.getInfoMap();
             expect(infoTable["SMW-00005"].getProductType()).to.deep.equal("Ring");
@@ -87,7 +82,7 @@ describe("ProductFilter", function () {
 
             const loadedData = filter.getLoadedData();
             expect(Object.keys(loadedData)).to.have.deep.members(
-                ["CAPOLAVORO", "CARTIER", "POMELLATO", "SCHAFFRATH", "SCHMUCKWERK"]);
+                ["CAPOLAVORO", "CARTIER", "POMELLATO", "SCHAFFRATH", "SCHMUCKWERK", "FOPE"]);
 
             expect(Object.keys(loadedData["CAPOLAVORO"].getModelList()).length).to.equal(7);
             expect(Object.keys(loadedData["CARTIER"].getModelList()).length).to.equal(2);
@@ -115,11 +110,6 @@ describe("ProductFilter", function () {
             expect(loadedData["CARTIER"].getModelList()["CAR-00002"].getProductType())
                 .to.deep.equal("Bracelet");
             expect(loadedData["CARTIER"].getModelList()["CAR-00002"].getProductList().length).to.equal(25);
-
-            expect(loadedData["CAPOLAVORO"].getColMap()["COL000021"]).to.deep.equal("The Colour Collection");
-            expect(loadedData["CARTIER"].getColMap()["COL000019"]).to.deep.equal("Love");
-            expect(loadedData["SCHAFFRATH"].getColMap()["COL000015"]).to.deep.equal("Colortaire");
-            expect(loadedData["SCHAFFRATH"].getColMap()["COL000010"]).to.deep.equal("Tester");
 
             const infoTable = filter.getInfoMap();
             expect(infoTable["SMW-00005"].getProductType()).to.deep.equal("Ring");
@@ -161,7 +151,7 @@ describe("ProductFilter", function () {
                 it(`${test.title}`, function () {
                     return filter.performQuery(test.query)
                         .then((result) => {
-                            return expect(result.getUuidCode()).to.deep.equal(test.expected);
+                            return expect(result[0].getUuidCode()).to.deep.equal(test.expected);
                         }).catch((err: string) => {
                             return expect.fail(`PerformQuery threw unexpected error: ${err}`);
                         });

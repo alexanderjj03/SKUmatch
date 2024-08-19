@@ -29,7 +29,7 @@ export async function loadJsonPersistFile(name: string): Promise<[{[key: string]
 
             for (const product of curModel["productList"]) {
                 model.addProduct(String(product["baseModelSKU"]), String(product["referenceNo"]),
-                    String(product["uuidCode"]), product["attributes"] as AttributePairs);
+                    String(product["uuidCode"]), product["attributes"] as AttributePairs, product["pictureLink"]);
             }
             products[brName].addBaseModel(model);
         });
@@ -37,8 +37,8 @@ export async function loadJsonPersistFile(name: string): Promise<[{[key: string]
 
     Object.keys(data["Model Info"]).forEach(bmCode => {
         modelInfo[bmCode] = new ModelInfo(String(data["Model Info"][bmCode]["brandCode"]),
-            String(data["Model Info"][bmCode]["colCode"]), String(data["Model Info"][bmCode]["productType"]),
-            bmCode, String(data["Model Info"][bmCode]["imageUrl"]));
+            String(data["Model Info"][bmCode]["colCode"]), String(data["Model Info"][bmCode]["colDesc"]),
+            String(data["Model Info"][bmCode]["productType"]), bmCode, String(data["Model Info"][bmCode]["imageUrl"]));
     });
     return Promise.resolve([products, modelInfo]);
 }

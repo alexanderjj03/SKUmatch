@@ -87,8 +87,7 @@ export default class Server {
             const map = Server.filter.getInfoMap()
             const cols = Object.values(map).filter((model) =>
                 model.getBrandCode().toUpperCase().trim() === req.params.brand.toUpperCase().trim());
-            const colDescs = Server.filter.getLoadedData()[req.params.brand].getColMap();
-            res.status(200).json({result: cols, colDesc: colDescs});
+            res.status(200).json({result: cols});
         } catch (err: any) {
             res.status(400).json({error: err.message});
         }
@@ -150,7 +149,7 @@ export default class Server {
     private static async performQuery(req: Request, res: Response) {
         try {
             const obj = req.body;
-            const output: Product = await Server.filter.performQuery(obj);
+            const output: Product[] = await Server.filter.performQuery(obj);
             res.status(200).json({result: output});
         } catch (err: any) {
             if (err instanceof NoResultsError) {

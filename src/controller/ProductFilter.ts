@@ -164,7 +164,7 @@ export default class ProductFilter {
     (so long as the base model contains every referenced attribute).
     Must follow the format provided in ProductFilter.spec.ts (line 192).
     */
-    public async performQuery(query: any): Promise<Product> {
+    public async performQuery(query: any): Promise<Product[]> {
         await this.loadSaveAllData(); // Ensure all data are loaded and saved to the disk first.
         let modelToSearch: BaseModel;
         let ret: Product[] = [];
@@ -173,7 +173,6 @@ export default class ProductFilter {
             modelToSearch = this.loadedData[query["brandCode"]].getModelList()[query["baseModelCode"]];
             ret = modelToSearch.getProductList();
             // Isolates a single baseModel to search, given the first two query components.
-
             Object.keys(query["attributes"]).forEach(attr => {
                 this.validateQueryAttr(query, modelToSearch, attr);
 
@@ -184,30 +183,37 @@ export default class ProductFilter {
             return Promise.reject(new FilterError(err.message));
         }
 
-        let retUUIDs = ret.map((prod) => prod.getUuidCode());
-        retUUIDs = this.removeDuplicates(retUUIDs); // Remove any duplictae products (if any)
+        let retUUIDs: {[key: string]: Product} = {};
+        for (const product of ret) {
+            retUUIDs[product.getUuidCode().trim().toUpperCase()] = product;
+        } // eliminates any products with duplicate UUID's
 
-        if (retUUIDs.length >= 2) {
+        if (Object.keys(retUUIDs).length >= 2) {
             let attrsReferenced =  Object.keys(query["attributes"]).length;
             let AttrNumDiff = modelToSearch.getAttributeList().length - attrsReferenced;
             // Checking if any of modelToSearch's attributes aren't referenced in query
 
             if (AttrNumDiff > 0) {
-                return Promise.reject(new ResultTooLargeError("Too many results " + "(" + retUUIDs.length + "). " +
-                    "Please refine your search. " + AttrNumDiff + " attribute value(s) remain un-entered."));
+                return Promise.reject(new ResultTooLargeError("Too many results " + "(" + Object.keys(retUUIDs).length
+                    + "). Please refine your search. " + AttrNumDiff + " attribute value(s) remain un-entered."));
             } else {
-                await persistFailedQuery(query, retUUIDs);
-                // This is of interest to the developers for bug fixing purposes.
-                return Promise.reject(new DatabaseError("Multiple matching products found: " + retUUIDs + ". " +
-                    "Your query and its result have been sent to our developers for review. " +
-                    "Apologies for the inconvenience"));
+                for (const prod of Object.values(retUUIDs)) {
+                    if (prod.getPictureLink() === "") {
+                        // If any of the matching products doesn't have a picture link, the user can't compare them.
+                        await persistFailedQuery(query, Object.keys(retUUIDs));
+                        // This is of interest to the developers for bug fixing purposes.
+                        return Promise.reject(new DatabaseError("Multiple matching products found: " +
+                            Object.keys(retUUIDs) + ". Your query and its result have been sent to our developers " +
+                            "for review. Apologies for the inconvenience"));
+                    }
+                }
             }
-        } else if (retUUIDs.length === 0) {
+        } else if (Object.keys(retUUIDs).length === 0) {
             return Promise.reject(new NoResultsError("No results found. Please ensure all " +
                 "attribute values are entered correctly"));
         }
 
-        return Promise.resolve(ret[0]); // There should only be one return value.
+        return Promise.resolve(Object.values(retUUIDs)); // There should usually only be one return value.
     }
 
     // Validation function to catch any faulty attribute-value(s) pairs in query[attributes].

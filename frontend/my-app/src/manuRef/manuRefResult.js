@@ -54,7 +54,11 @@ export function ManuRefResult({brand, manuRef}) {
                 } else if (typeof(value) === "number") {
                     textVal = value;
                 } else {
-                    textVal = value.substring(0, 1) + value.substring(1).toLowerCase();
+                    if (value.length > 2) {
+                        textVal = value.substring(0, 1) + value.substring(1).toLowerCase();
+                    } else {
+                        textVal = value;
+                    }
                 }
 
                 if (attrArr.length === 0) {

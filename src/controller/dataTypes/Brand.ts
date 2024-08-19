@@ -7,21 +7,15 @@ import {Product} from "./Product";
 export class Brand {
     private brandCode: string;
     private baseModelList: {[key: string]: BaseModel}; // Contains each base model code and its corresponding object.
-    private colDescMap: {[key: string]: string}; // Maps each collection code to its corresponding description.
 
     constructor(brandCode: string) {
         this.brandCode = brandCode;
         this.baseModelList = {};
-        this.colDescMap = {};
     }
 
     public addBaseModel(model: BaseModel) {
         if (typeof(this.baseModelList[model.getModelCode()]) === "undefined") {
             this.baseModelList[model.getModelCode()] = model;
-        }
-
-        if (typeof(this.colDescMap[model.getColCode()]) === "undefined") {
-            this.colDescMap[model.getColCode()] = model.getColDesc();
         }
     }
 
@@ -32,15 +26,11 @@ export class Brand {
             const newBaseModel = new BaseModel(this.brandCode, product.getColCode(), product.getColDesc(),
                 product.getSubColCode(), product.getProductType(), product.getModelCode());
             newBaseModel.addProduct(product.getModelSKU(), product.getReferenceNo(), product.getUuidCode(),
-                product.getAttributes());
+                product.getAttributes(), product.getPictureLink());
             this.baseModelList[product.getModelCode()] = newBaseModel;
         } else {
             this.baseModelList[product.getModelCode()].addProduct(product.getModelSKU(),
-                product.getReferenceNo(), product.getUuidCode(), product.getAttributes());
-        }
-
-        if (typeof(this.colDescMap[product.getColCode()]) === "undefined") {
-            this.colDescMap[product.getColCode()] = product.getColDesc();
+                product.getReferenceNo(), product.getUuidCode(), product.getAttributes(), product.getPictureLink());
         }
     }
 
@@ -58,9 +48,5 @@ export class Brand {
 
     public getModelList(): {[key: string]: BaseModel} {
         return this.baseModelList;
-    }
-
-    public getColMap(): {[key: string]: string} {
-        return this.colDescMap;
     }
 }

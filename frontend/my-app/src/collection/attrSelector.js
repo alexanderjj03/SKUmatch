@@ -12,9 +12,10 @@ export const attrToDesc = {
     "TEXTILE COLOR": "Textile color", "GLASS COLOR": "Glass color"
 };
 
-export const attrValMap = {
-    "GOLD(R)": "Gold (rose)", "GOLD(W)": "Gold (white)", "GOLD(Y)": "Gold (yellow)", "STEEL": "St. Steel",
-    "G SI": "G SI", "G VS": "G VS", "LB VS": "LB VS", "TW/VS": "TW/VS", "S": "S", "M": "M", "L": "L"
+export const attrValMap = { "GOLD(R)": "Gold (rose)", "GOLD(W)": "Gold (white)", "GOLD(Y)": "Gold (yellow)",
+    "STEEL": "St. Steel", "G SI": "G SI", "G VS": "G VS", "LB VS": "LB VS", "TW/VS": "TW/VS", "s": "S", "m": "M",
+    "l": "L", "xs": "XS", "xl": "XL", "GOLD(R+W)": "Gold (rose & white)", "GOLD(Y+W)": "Gold (yellow & white)",
+    "GOLD(R+Y)": "Gold (rose & yellow)"
 };
 // Matching attribute values with how they are to be displayed (by default, de-capitalize the value,
 // as most attribute values are expressed in all caps).
@@ -24,21 +25,20 @@ export function AttrSelector({brand, baseModel}) {
     const [getAttrsUrl] = useState(localHost + `/data/`);
     const [attrsLoaded, setAttrsLoaded] = useState(false);
     const [possibleAttrs, setPossibleAttrs] = useState({});
-    const [queryRan, setQueryRan] = useState(false);
     const [errMessage, setMessage] = useState("");
     const [query, setQuery] = useState({"brandCode": brand,
         "baseModelCode": baseModel, "attributes": {}});
-    const [buttonDisabled, setButtonDisabled] = useState(false);
+    const [resetResult, setResetResult] = useState(false);
+    // turns true temporarily upon query change, makes the query available to run again
 
     useEffect(() => {
         const fetchAttrs = () => {
+            setAttrsLoaded(false);
             setQuery({
                 "brandCode": brand,
                 "baseModelCode": baseModel,
                 "attributes": {}
             });
-            setQueryRan(false);
-            setAttrsLoaded(false);
             return fetch(getAttrsUrl + brand + '/' + baseModel)
                 .then((res) => res.json())
                 .then((data) => {
@@ -90,7 +90,6 @@ export function AttrSelector({brand, baseModel}) {
                             placeholder='Select an option...'
                             value=''
                             onChange={(val) => {
-                                setQueryRan(false);
                                 let curQuery = query;
                                 if ((val.value !== 'Select an option...') && (possibleVals[1].indexOf(val.value) !== -1)) {
                                     curQuery["attributes"][attr] = possibleVals[0][possibleVals[1].indexOf(val.value)];
@@ -99,6 +98,8 @@ export function AttrSelector({brand, baseModel}) {
                                     delete curQuery["attributes"][attr];
                                 }
                                 setQuery(curQuery);
+                                setResetResult(true)
+                                setTimeout(() => setResetResult(false), 500);
                             }}
                             options={possibleVals[1]}
                         />
@@ -139,37 +140,15 @@ export function AttrSelector({brand, baseModel}) {
             );
         }
     } else {
-        if (!queryRan) {
-            return (
-                <div className={"Attribute-Selector"}>
-                    <p>
-                        Attributes (please fill all attribute values
-                        to ensure that a unique product is found):
-                    </p>
-                    {displayAttrDropdowns()}
-                    <p>
-                        <button disabled={buttonDisabled}
-                                onClick={() => {
-                                    setQueryRan(true)
-                                    setButtonDisabled(true);
-                                    setTimeout(() => setButtonDisabled(false), 1000);
-                                }}>
-                            Find matching product code
-                        </button>
-                    </p>
-                </div>
-            );
-        } else {
-            return (
-                <div className={"Attribute-Selector"}>
-                    <p>
-                        Attributes (please fill all attribute values
-                        to ensure that a unique product is found):
-                    </p>
-                    {displayAttrDropdowns()}
-                    <QueryResult query={query}/>
-                </div>
-            );
-        }
+        return (
+            <div className={"Attribute-Selector"}>
+                <p>
+                    Attributes (please fill all attribute values
+                    to ensure that a unique product is found):
+                </p>
+                {displayAttrDropdowns()}
+                <QueryResult query={query} reset={resetResult}/>
+            </div>
+        );
     }
 }

@@ -37,8 +37,8 @@ export function TabletoModelInfo(data: any[]): {[key: string]: ModelInfo} {
         if (typeof(obj["Base Model Code"]) !== "undefined") {
             let modelCode = String(obj["Base Model Code"]).trim();
             ret[modelCode] = new ModelInfo(String(obj["Brand Code"]).trim(), String(obj["Collection Code"]).trim(),
-                String(obj["Type of Product"]).trim(), String(obj["Base Model Code"]).trim(),
-                String(obj["Picture URL"]).trim());
+                String(obj["Collection Description"]).trim(), String(obj["Type of Product"]).trim(),
+                String(obj["Base Model Code"]).trim(), String(obj["Picture URL"]).trim());
         }
     }
     return ret;
@@ -75,6 +75,11 @@ export function extractProduct(brandCode: string, data: any): Product {
     let referenceNo = String(data["Manufacturer Reference No."]).trim();
     let uuidCode = String(data["Code"]).trim();
 
+    let pictureLink = "";
+    if (typeof(data["Picture Link"]) !== "undefined") {
+        pictureLink = String(data["Picture Link"]).trim();
+    }
+
     let attributes: AttributePairs = {};
     let curAttrNum: number = 1; // used to reflect that different base models have varying numbers of attributes.
 
@@ -85,9 +90,11 @@ export function extractProduct(brandCode: string, data: any): Product {
         let value: any;
 
         if (attr === Attribute.SizeCS) {
-            value = Number(data["Attribute Code " + curAttrNum + " Value"]);
+            let csRaw: string = String(data["Attribute Code " + curAttrNum + " Value"])
+                .trim().replace(",", ".");
+            value = Number(csRaw);
         } else if (attr === Attribute.Size) {
-            value = String(data["Attribute Code " + curAttrNum + " Value"]).trim().toLowerCase();
+            value = String(data["Attribute Code " + curAttrNum + " Value"]).toLowerCase().trim();
         } else {
             value = String(data["Attribute Code " + curAttrNum + " Value"]).trim();
         }
@@ -97,5 +104,5 @@ export function extractProduct(brandCode: string, data: any): Product {
     }
 
     return new Product(brandCode, colCode, colDesc, subColCode, productType, baseModelCode, baseModelSKU,
-        referenceNo, uuidCode, attributes);
+        referenceNo, uuidCode, attributes, pictureLink);
 }
