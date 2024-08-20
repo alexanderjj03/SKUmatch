@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from "react";
 import './productSelector.css';
-import {AttrSelector} from "./attrSelector";
 
 export function ProductSelector({productList}) {
     const [products, setProducts] = useState(productList);
