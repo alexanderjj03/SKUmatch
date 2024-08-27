@@ -197,15 +197,15 @@ export default class ProductFilter {
                 return Promise.reject(new ResultTooLargeError("Too many results " + "(" + Object.keys(retUUIDs).length
                     + "). Please refine your search. " + AttrNumDiff + " attribute value(s) remain un-entered."));
             } else {
-                for (const prod of Object.values(retUUIDs)) {
-                    if (prod.getPictureLink() === "") {
-                        // If any of the matching products doesn't have a picture link, the user can't compare them.
-                        await persistFailedQuery(query, Object.keys(retUUIDs));
-                        // This is of interest to the developers for bug fixing purposes.
-                        return Promise.reject(new DatabaseError("Multiple matching products found: " +
-                            Object.keys(retUUIDs) + ". Your query and its result have been sent to our developers " +
-                            "for review. Apologies for the inconvenience"));
-                    }
+                let imageLinks = Object.values(retUUIDs).map((prod) => prod.getPictureLink());
+                let filteredLinks = this.removeDuplicates(imageLinks);
+                if ((filteredLinks.indexOf("") !== -1) || (filteredLinks.length !== imageLinks.length)) {
+                    // If any of the product links are blank or duplicates, the user can't compare them.
+                    await persistFailedQuery(query, Object.keys(retUUIDs));
+                    // This is of interest to the developers for bug fixing purposes.
+                    return Promise.reject(new DatabaseError("Multiple matching products found: " +
+                        Object.keys(retUUIDs) + ". Your query and its result have been sent to our developers " +
+                        "for review. Apologies for the inconvenience"));
                 }
             }
         } else if (Object.keys(retUUIDs).length === 0) {

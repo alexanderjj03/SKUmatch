@@ -33,7 +33,7 @@ export function ManuRefResult({brand, manuRef}) {
                 })
         }
 
-        if (manuRef !== 'Select an option...') {
+        if (manuRef !== '') {
             fetchProduct();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -79,7 +79,7 @@ export function ManuRefResult({brand, manuRef}) {
         return attrArr;
     }
 
-    if ((manuRef === "Select an option...") || (brand === "Select an option...")) {
+    if ((manuRef === "") || (brand === "")) {
         return (
             <div></div>
         );

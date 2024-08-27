@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
-import Dropdown from 'react-dropdown'; // Source: https://www.npmjs.com/package/react-dropdown?activeTab=readme
-import 'react-dropdown/style.css';
+import Combobox from "react-widgets/Combobox";
+import "react-widgets/styles.css";
 import './manuRefSelector.css';
 import {localHost} from "../App";
 import {ManuRefResult} from "./manuRefResult";
@@ -9,17 +9,15 @@ import {ManuRefResult} from "./manuRefResult";
 export function ManuRefSelector({brand}) {
     const [getRefsUrl] = useState(localHost + `/manuRef/`);
     const [brandName, setBrandName] = useState(brand);
-    const [refList, setRefList] = useState(['']);
     const [dispListLoaded, setDispListLoaded] = useState(false);
     const [dispList, setDispList] = useState(['']);
     const [enteredRef, setEnteredRef] = useState('');
-    const [selectedRef, setSelectedRef] = useState('Select an option...');
+    const [selectedRef, setSelectedRef] = useState('');
     const [errMessage, setMessage] = useState("");
     const [disableDropdown, setDisableDropdown] = useState(false);
 
     useEffect(() => {
         const fetchRefs = () => {
-            setSelectedRef('Select an option...');
             return fetch(getRefsUrl + brand)
                 .then((res) =>res.json())
                 .then((data) => {
@@ -27,36 +25,25 @@ export function ManuRefSelector({brand}) {
                     for (const ref of data.result) {
                         refsList.push(ref);
                     }
-                    setRefList(refsList);
-
-                    filterRefList(refsList, '');
+                    setDispList(refsList);
+                    setDispListLoaded(true);
                 })
                 .catch(err => {
                     setMessage(err);
                 })
         }
 
-        if (brand !== 'Select an option...') {
+        if (brand !== '') {
             setBrandName(brand);
+            setSelectedRef('');
             setEnteredRef('');
+            setDispListLoaded(false);
             fetchRefs();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [brand]);
 
-    const filterRefList = (fullList, prefix) => {
-        let options = ['Select an option...'];
-        if (prefix === '') {
-            options = options.concat(fullList);
-        } else {
-            options = options.concat(fullList.filter(ref => ref.toUpperCase().startsWith(prefix.toUpperCase())));
-        }
-
-        setDispList(options);
-        setDispListLoaded(true);
-    }
-
-    if (brand === "Select an option..."){
+    if (brand === ''){
         return (
             <div></div>
         );
@@ -89,31 +76,20 @@ export function ManuRefSelector({brand}) {
                     <span>
                         Manufacturer Reference No.: &nbsp;
                     </span>
-                    <textarea
-                        placeholder="Start typing your product's manufacturer reference number"
+                    <Combobox
+                        placeholder={"Start typing..."}
                         value={enteredRef}
-                        rows={3}
-                        cols={35}
-                        onChange={e => {
-                            setEnteredRef(e.target.value.trim());
-                            filterRefList(refList, e.target.value.trim());
-                        }}
-                    />
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    <Dropdown
-                        placeholder='Select an option...'
-                        value={selectedRef}
                         disabled={disableDropdown}
-                        onChange={(val) => {
-                            setSelectedRef(val.value);
+                        data={dispList}
+                        onChange={(enteredVal) => {
+                            setEnteredRef(enteredVal);
+                        }}
+                        onSelect={(option) => {
+                            setSelectedRef(option);
                             setDisableDropdown(true);
                             setTimeout(() => setDisableDropdown(false), 1000);
                         }}
-                        options={dispList}
                     />
-                    <span>
-                        &nbsp; ({dispList.length - 1} options)
-                    </span>
                 </div>
                 <ManuRefResult brand={brandName} manuRef={selectedRef}/>
             </div>

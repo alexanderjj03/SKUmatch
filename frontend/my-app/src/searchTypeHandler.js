@@ -11,12 +11,12 @@ export function SearchTypeHandler({brand}) {
     const [button2Disabled, setButton2Disabled] = useState(false);
 
     useEffect(() => {
-        if (brand !== 'Select an option...') {
+        if (brand !== '') {
             setBrandName(brand);
         }
     }, [brand]);
 
-    if (brand === "Select an option..."){
+    if (brand === ''){
         return (
             <div></div>
         );

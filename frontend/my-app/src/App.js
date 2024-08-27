@@ -3,6 +3,7 @@ import Dropdown from 'react-dropdown'; // Source: https://www.npmjs.com/package/
 import 'react-dropdown/style.css';
 import './App.css';
 import {SearchTypeHandler} from "./searchTypeHandler";
+import Combobox from "react-widgets/Combobox";
 
 export const localHost = "http://localhost:3500";
 
@@ -12,9 +13,8 @@ function App() {
   const [brandList, setBrandList] = useState(['']);
   const [dispListLoaded, setDispListLoaded] = useState(false);
   const [displayList, setDisplayList] = useState([[''], ['']]);
-  const [rawSelect, setRawSelect] = useState('');
-  const [enteredBrand, setEnteredBrand] = useState('');
-  const [selectedBrand, setSelectedBrand] = useState('Select an option...');
+  const [rawInput, setRawInput] = useState('');
+  const [selectedBrand, setSelectedBrand] = useState('');
   const [isSelected, setSelected] = useState(false);
   const [errMessage, setMessage] = useState("");
   const [disableDropdown, setDisableDropdown] = useState(false);
@@ -27,7 +27,7 @@ function App() {
                   let sorted = data.result.sort();
                   setBrandList(sorted);
 
-                  filterBrandList(sorted, '');
+                  setupBrandList(sorted, '');
               })
               .catch(err => {
                   setMessage(err);
@@ -38,7 +38,7 @@ function App() {
       // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const filterBrandList = (fullList, prefix) => {
+  const setupBrandList = (fullList, prefix) => {
       let options = [];
       if (prefix === '') {
           options = fullList;
@@ -46,7 +46,7 @@ function App() {
           options = fullList.filter(brand => brand.toUpperCase().startsWith(prefix.toUpperCase()));
       }
 
-      let dispList = [['Select an option...'], ['Select an option...']];
+      let dispList = [[], []];
       for (const brand of options) {
           dispList[0].push(brand); // real brand name (usually all caps)
           dispList[1].push(brand.substring(0, 1) + brand.substring(1).toLowerCase()); // Displayed brand name
@@ -90,51 +90,34 @@ function App() {
                   <p>
                       <button disabled={!isSelected}
                               onClick={() => {
-                                  setSelectedBrand('Select an option...')
-                                  setRawSelect('Select an option...');
-                                  setEnteredBrand('');
+                                  setSelectedBrand('')
+                                  setRawInput('');
                                   setSelected(false);
-                                  filterBrandList(brandList, '');
+                                  setDispListLoaded(false);
+                                  setupBrandList(brandList, '');
                               }}>
                           Clear all entries
                       </button>
                   </p>
                   <div className="Brand-Selector">
                       Brand Name: &nbsp;
-                      <textarea
-                          placeholder="Start typing your product's brand, then select
-                            an option from the dropdown"
-                          value={enteredBrand}
-                          rows={3}
-                          cols={35}
-                          onChange={e => {
-                              setEnteredBrand(e.target.value.trim());
-                              filterBrandList(brandList, e.target.value.trim());
-                          }}
-                      />
-                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                      <Dropdown
-                          placeholder='Select an option...'
+                      <Combobox
+                          placeholder={"Start typing..."}
+                          value={rawInput}
                           disabled={disableDropdown}
-                          value={rawSelect}
-                          onChange={val => {
-                              setRawSelect(val.value);
+                          data={displayList[1]}
+                          onChange={(enteredVal) => {
+                              setRawInput(enteredVal);
+                          }}
+                          onSelect={(option) => {
                               setDisableDropdown(true);
                               setTimeout(() => setDisableDropdown(false), 1000);
-                              if ((val.value !== 'Select an option...') && displayList[1].indexOf(val.value) !== -1) {
-                                  const realBrand = displayList[0][displayList[1].indexOf(val.value)];
-                                  setSelectedBrand(realBrand);
-                                  setSelected(true);
-                              } else if (val.value === 'Select an option...') {
-                                  setSelectedBrand('Select an option...');
-                                  setSelected(false);
-                              }
+
+                              const realBrand = displayList[0][displayList[1].indexOf(option)];
+                              setSelectedBrand(realBrand);
+                              setSelected(true);
                           }}
-                          options={displayList[1]}
                       />
-                      <span>
-                            &nbsp; ({displayList[1].length - 1} options)
-                      </span>
                   </div>
                   <SearchTypeHandler brand={selectedBrand}/>
               </header>

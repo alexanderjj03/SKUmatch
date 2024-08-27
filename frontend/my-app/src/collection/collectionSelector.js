@@ -46,7 +46,7 @@ export function CollectionSelector({brand}) {
                 })
         }
 
-        if (brand !== 'Select an option...') {
+        if (brand !== '') {
             setBrandName(brand);
             fetchCols();
         }
@@ -166,7 +166,7 @@ export function CollectionSelector({brand}) {
         return displayArr;
     }
 
-    if (brand === "Select an option...") {
+    if (brand === '') {
         return (
             <div></div>
         );
