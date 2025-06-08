@@ -11,8 +11,8 @@ const transporter = nodemailer.createTransport({
 
 export async function sendEmail(query: any, result: string[], date: Date): Promise<void> {
     const mailOptions = {
-        from: 'xander.jacobson@gmail.com', // Sender
-        to: 'xander.jacobson@gmail.com', // Recipient
+        from: '', // Sender
+        to: '', // Recipient
         subject: 'Notification of failed query', // Email subject
         html: "<!DOCTYPE html>\n" +
             "<html lang=\"en\">\n" +
